@@ -54,8 +54,15 @@ if (isset($_SESSION['show_popup']) && $_SESSION['show_popup'] === true) {
      </div>
      
          <div class="grouped" >
+<<<<<<< HEAD
              <div><h1 style="margin-bottom: 0; font-size: 2rem; display: inline; vertical-align: middle;">Educational Assistance list </h1><h3 style="color:#333;">Brgy.Lidong, Sto.Domingo, Albay</h3></div>
             <div class="profilehorizontal"><h3 style="margin-bottom: 0; display: inline; vertical-align: middle;">profile</h3><div></div> <button type="button" class="btn btn-primary">Return</button> </div> 
+=======
+             <h1 style="margin-bottom: 0; font-size: 2rem; display: inline; vertical-align: middle;">Assistance list</h1>
+         
+        
+        <button type="button" class="btn btn-primary">Return</button>  
+>>>>>>> 54b0b3849f32d9fe5f575f63046ed417a0e8623e
         </div>
     </div>
  <div class= 'nametable'>
