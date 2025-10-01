@@ -128,7 +128,7 @@ $result = $conn->query($sql);
             echo "<td>" . $row["firstname"] . "</td>";
             echo "<td>" . $row["c&y"] . "</td>";
             echo "<td>". $row["school"]."</td>";
-            echo "<td>Email@email.com</td>";
+            echo "<td>kmiberly rodrigiuzm</td>";
             echo "<td>address</td>";
             if ($row["status"] == 1){
                 echo "<td>Delivered</td>";}
