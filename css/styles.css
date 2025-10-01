@@ -1,0 +1,264 @@
+body{
+    background: url(images/abstract-white-geometric-background-2loh0g1tyxca8rju.png);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 0;
+    min-height: 100vh; 
+    overflow: auto;
+}
+table{
+    width: 105%;
+    border-color: #001327;
+    border-width: 0.4mm;
+    font-size: 16px;
+    
+}
+.horizontal_text{
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;}
+.nametable{
+    display: flex;
+    width: 90%;
+    align-items: center;
+    flex-direction: column;
+    justify-items: space-between;
+    flex: 1 0 auto; 
+}
+.horizontal{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0 2%;
+    align-items: center;
+    background: #f8f9fa;
+    margin-bottom: 1%;
+}
+
+footer{
+    
+    background:#f8f9fa;
+    text-align:start;
+    padding:15px 0;
+    width:100%;
+    position: relative;
+    margin-top: 5%;
+}
+.horizontal_footer{
+    width: inherit;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    padding: 4px;
+    align-items: center;
+}
+.footer_div{
+    padding: 10px;
+    
+}
+div.footer_div div{
+    padding: 2px;   
+    text-align:start;
+    font-size: 14px;
+    color: #6c757d;
+}
+
+tr:hover{
+    background-color: #c9e4ff;
+    cursor: pointer;
+}
+.tdwbtn{
+    padding: 10px   ;
+    width: inherit;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+.grouped{
+    display: flex;
+    flex-direction: row;
+    background: #b2e8ff;
+    width: 100%;
+    padding: 2%;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2%;
+}
+
+h1{
+    margin-bottom: 0;
+}
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 200px;
+    background: #ffffff;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+    padding-top: 60px;
+    z-index: 1000; /* ensure sidebar overlays content when expanded */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    transition: width 0.3s ease, padding 0.3s ease, background 0.3s ease;
+    overflow: hidden;
+}
+.sidebar.collapsed {
+    width: 60px;
+}
+.sidebar h2 {
+    margin: 0 0 20px 20px;
+    font-size: 22px;
+    color: #007bff;
+}
+
+
+.sidebar.collapsed .sidebar-toggle {
+    transform: rotate(180deg);
+}
+.sidebar ul {
+    list-style: none;
+    padding: 0 0 0 0;
+    width: 100%;
+}
+.sidebar ul li {
+    margin-bottom: 6px;
+}
+.sidebar ul li a {
+    justify-content: flex-start;
+    color: #333;
+    text-decoration: none;
+    font-size: 16px;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    width: 100%;
+}
+.sidebar ul li a:hover {
+    color: #007bff;
+    background: rgba(0,123,255,0.06);
+    border-radius: 6px;
+}
+.sidebar ul li a .icon {
+    display: inline-flex;
+    width: 28px;
+    justify-content: center;
+    align-items: center;
+    color: #007bff;
+}
+.sidebar ul li a .label {
+    white-space: nowrap;
+}
+/* hide labels when collapsed, center icons */
+.sidebar.collapsed .sidebar-title,
+.sidebar.collapsed ul li a .label {
+    display: none;
+}
+.sidebar.collapsed ul li a {
+    justify-content: center;
+    padding: 12px 0;
+}
+.nametable { transition: none; }
+/* when the sidebar is collapsed we offset page content so the narrow icons don't cover it */
+body.sidebar-collapsed {
+    margin-left: 60px !important;
+}
+.firsttr{
+    background: #001b37;
+    color: white;
+    font-size: 2px;
+    overflow: hidden;
+    
+}
+.firsttr:hover {
+    background-color: #001b37;
+    color: white; /* adjust for readable contrast if needed */
+}
+/* header inside sidebar: place title and toggle inline */
+.sidebar-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 10px 8px 12px;
+    box-sizing: border-box;
+}
+
+/* If toggle is placed inside header, it will use this. Otherwise the list-item rules apply. */
+.sidebar-header .sidebar-toggle {
+    position: static;        /* override any absolute positioning */
+    margin-left: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: #007bff;
+    cursor: pointer;
+    padding: 6px;
+    line-height: 1;
+}
+
+/* keep the rotate effect when collapsed */
+.sidebar.collapsed .sidebar-toggle {
+    transform: rotate(180deg);
+}
+/* keep sidebar-title spacing consistent */
+.sidebar-title {
+    margin: 0;
+    font-size: 18px;
+    color: #007bff;
+}
+/* make the toggle link use the same layout as other sidebar items */
+.sidebar ul li a.sidebar-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    width: 100%;
+    color: #333;
+    text-decoration: none;
+    background: none;
+    border: none;
+    box-sizing: border-box;
+}
+.sidebar ul li a.sidebar-toggle .icon {
+    width: 28px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    color: #007bff;
+}
+.sidebar ul li a.sidebar-toggle:hover {
+    color: #007bff;
+    background: rgba(0,123,255,0.06);
+    border-radius: 6px;
+}
+
+.firsttr:first-child th {
+    background: #242424;
+    border:.9mm;
+    overflow: hidden;
+}
+
+form:first-child input , select {
+    width: 100%;
+    padding: 8px;
+    margin: 5px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: vertical;}
+
+
+td{
+    text-transform: capitalize;
+}
