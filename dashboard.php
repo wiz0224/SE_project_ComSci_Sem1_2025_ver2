@@ -45,19 +45,20 @@ if (isset($_SESSION['show_popup']) && $_SESSION['show_popup'] === true) {
       <h4 class="menu-text" style="margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;">Menu</h4>
     </button>
 
+
     <a href="accept.php" class="menu-item" style="text-decoration:none;">
-        <span class="icon">🏠</span>
-        <h4 class="menu-text" style="margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;">Accept</h4>
+        <span class="icon">✓</span><h4 class="menu-text" style="margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;">Accept</h4>
     </a>
+
     <div class="menu-item"><span class="icon">⚙️</span><h4 class="menu-text" style="margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;">Settings</h4></div>
-    <div class="menu-item"><span class="icon">🚪</span><h4 class="menu-text" style="margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;">Logout</h4></div>
+    
   </div>
 
      
          <div class="grouped" >
              <div><h1 style="margin-bottom: 0; font-size: 2rem; display: inline; vertical-align: middle;">Educational Assistance list </h1><h3 style="color:#333;">Brgy.Lidong Sto.Domingo, Albay</h3></div>
 
-            <div class="profilehorizontal"><h3 style="margin-bottom: 0; display: inline; vertical-align: middle;">profile</h3><div></div> <button type="button" class="btn btn-primary">Return</button> </div> 
+            <div class="profilehorizontal"><div><img src="images/vecteezy_profile-icon-design-vector_5544718.jpg" alt="" style="width:60px;padding:2px;margin-right:20px;"><h3 style="margin-bottom: 0; display: inline; vertical-align: middle;">profile</h3></div> <button type="button" class="btn btn-primary">:</button> </div> 
 
         </div>
     </div>
@@ -120,8 +121,10 @@ if ($order === 'lastname_asc') {
 $result = $conn->query($sql);
      if ($result->num_rows > 0) {
         echo "<table border='1' cellpadding='15'>";
+
         echo "<tr class='firsttr'><th>ID</th><th>Last Name</th><th>First Name</th><th>Course & Year</th><th>School</th><th>Email</th><th>Address</th><th>Status</th><th>Date </th></tr>";
- 
+
+        
          while ($row = $result->fetch_assoc()) {
             echo "<tr>";
             echo "<td>" . $row["ID"] . "</td>";
@@ -132,11 +135,12 @@ $result = $conn->query($sql);
             echo "<td class='email-cell'>". $row["email"]."</td>";
             echo "<td>". $row["address"]."</td>";
             if ($row["status"] == 1){
-                echo "<td>Delivered</td>";}
+                echo "<td style='background:#80ff9f;'>Delivered</td>";}
             else{
-                echo "<td>Needs Action </td>";
+                echo "<td style='background:#fffba8;' >Pending</td>";
             }
-            echo "<td class='horizontal_text'><div class='tdwbtn'> 01/23/25 <button type='button' class='btn btn-outline-info btn-sm' style='margin-left:20px;'>Update</button>  </div>  </td>";
+            echo "<td> 01/23/25</td>";
+            echo "<td><button type='button' class='btn btn-outline-info btn-sm'>Update</button></td>";
             echo "</tr>";
          }
  
