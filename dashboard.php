@@ -53,7 +53,7 @@ if (isset($_SESSION['show_popup']) && $_SESSION['show_popup'] === true) {
 
      
          <div class="grouped" >
-             <div><h1 style="margin-bottom: 0; font-size: 2rem; display: inline; vertical-align: middle;">Educational Assistance list </h1><h3 style="color:#333;">Brgy.Lidong, Sto.Domingo, Albay</h3></div>
+             <div><h1 style="margin-bottom: 0; font-size: 2rem; display: inline; vertical-align: middle;">Educational Assistance list </h1><h3 style="color:#333;">Brgy.Lidong Sto.Domingo, Albay</h3></div>
 
             <div class="profilehorizontal"><h3 style="margin-bottom: 0; display: inline; vertical-align: middle;">profile</h3><div></div> <button type="button" class="btn btn-primary">Return</button> </div> 
 
@@ -127,8 +127,8 @@ $result = $conn->query($sql);
             echo "<td>" . $row["firstname"] . "</td>";
             echo "<td>" . $row["c&y"] . "</td>";
             echo "<td>". $row["school"]."</td>";
-            echo "<td>Email@email.com</td>";
-            echo "<td>address</td>";
+            echo "<td class='email-cell'>". $row["email"]."</td>";
+            echo "<td>". $row["address"]."</td>";
             if ($row["status"] == 1){
                 echo "<td>Delivered</td>";}
             else{
@@ -179,3 +179,10 @@ window.onload = function() {
 </script>
 </body>
 </html>
+
+<style>
+/* Add to styles.css */
+.email-cell {
+    text-transform: none !important;
+}
+</style>
