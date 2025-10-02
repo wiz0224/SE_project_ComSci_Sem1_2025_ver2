@@ -42,13 +42,13 @@ if (isset($_SESSION['show_popup']) && $_SESSION['show_popup'] === true) {
     <!-- Toggle behaves like a menu item -->
     <button class="menu-item" onclick="toggleSidebar()">
       <span class="icon">☰</span>
-      <span class="menu-text">Menu</span>
+      <h4 class="menu-text" style="margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;">Menu</h4>
     </button>
 
-    <div class="menu-item"><span class="icon">🏠</span><span class="menu-text">Home</span></div>
-    <div class="menu-item"><span class="icon">👤</span><span class="menu-text">Profile</span></div>
-    <div class="menu-item"><span class="icon">⚙️</span><span class="menu-text">Settings</span></div>
-    <div class="menu-item"><span class="icon">🚪</span><span class="menu-text">Logout</span></div>
+    <div class="menu-item"><span class="icon">🏠</span><h4 class="menu-text" style="margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;">Accept</h4></div>
+        
+    <div class="menu-item"><span class="icon">⚙️</span><h4 class="menu-text" style="margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;">Settings</h4></div>
+    <div class="menu-item"><span class="icon">🚪</span><h4 class="menu-text" style="margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;">Logout</h4></div>
   </div>
 
      
