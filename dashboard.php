@@ -128,8 +128,8 @@ $result = $conn->query($sql);
             echo "<td>" . $row["firstname"] . "</td>";
             echo "<td>" . $row["c&y"] . "</td>";
             echo "<td>". $row["school"]."</td>";
-            echo "<td>Email@email.com</td>";
-            echo "<td>address</td>";
+            echo "<td class='email-cell'>". $row["email"]."</td>";
+            echo "<td>". $row["address"]."</td>";
             if ($row["status"] == 1){
                 echo "<td>Delivered</td>";}
             else{
@@ -200,3 +200,10 @@ window.onload = function() {
 </script>
 </body>
 </html>
+
+<style>
+/* Add to styles.css */
+.email-cell {
+    text-transform: none !important;
+}
+</style>
