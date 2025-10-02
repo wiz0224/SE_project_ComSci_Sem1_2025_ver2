@@ -101,74 +101,59 @@ h1{
     background: #ffffff;
     box-shadow: 2px 0 5px rgba(0,0,0,0.05);
     padding-top: 60px;
-    z-index: 1000; /* ensure sidebar overlays content when expanded */
+    z-index: 1000; 
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     transition: width 0.3s ease, padding 0.3s ease, background 0.3s ease;
     overflow: hidden;
 }
+
+    
 .sidebar.collapsed {
-    width: 60px;
-}
-.sidebar h2 {
-    margin: 0 0 20px 20px;
-    font-size: 22px;
-    color: #007bff;
-}
+      width: 50px;
+    }
 
+    /* Menu items */
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+      border: none;
+      background: none;
+      color: inherit;
+      font: inherit;
+      text-align: left;
+      width: 100%;
+    }
 
-.sidebar.collapsed .sidebar-toggle {
-    transform: rotate(180deg);
-}
-.sidebar ul {
-    list-style: none;
-    padding: 0 0 0 0;
-    width: 100%;
-}
-.sidebar ul li {
-    margin-bottom: 6px;
-}
-.sidebar ul li a {
-    justify-content: flex-start;
-    color: #333;
-    text-decoration: none;
-    font-size: 16px;
-    transition: color 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    width: 100%;
-}
-.sidebar ul li a:hover {
-    color: #007bff;
-    background: rgba(0,123,255,0.06);
-    border-radius: 6px;
-}
-.sidebar ul li a .icon {
-    display: inline-flex;
-    width: 28px;
-    justify-content: center;
-    align-items: center;
-    color: #007bff;
-}
-.sidebar ul li a .label {
-    white-space: nowrap;
-}
-/* hide labels when collapsed, center icons */
-.sidebar.collapsed .sidebar-title,
-.sidebar.collapsed ul li a .label {
-    display: none;
-}
-.sidebar.collapsed ul li a {
-    justify-content: center;
-    padding: 12px 0;
-}
+    .menu-item:hover {
+      background: #34495e;
+    }
+
+    .menu-item span.icon {
+      font-size: 20px;
+      margin-right: 12px;
+      min-width: 24px;
+      text-align: center;
+    }
+
+    .menu-text {
+      white-space: nowrap;
+      opacity: 1;
+      transition: opacity 0.3s;
+    }
+
+    .sidebar.collapsed .menu-text {
+      opacity: 0;
+      pointer-events: none;
+    }
 .nametable { transition: none; }
 /* when the sidebar is collapsed we offset page content so the narrow icons don't cover it */
 body.sidebar-collapsed {
-    margin-left: 60px !important;
+    margin-left: 50px !important;
 }
 .firsttr{
     background: #001b37;
@@ -182,66 +167,7 @@ body.sidebar-collapsed {
     color: white; /* adjust for readable contrast if needed */
 }
 /* header inside sidebar: place title and toggle inline */
-.sidebar-header {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 10px 8px 12px;
-    box-sizing: border-box;
-}
 
-/* If toggle is placed inside header, it will use this. Otherwise the list-item rules apply. */
-.sidebar-header .sidebar-toggle {
-    position: static;        /* override any absolute positioning */
-    margin-left: 8px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: none;
-    border: none;
-    font-size: 18px;
-    color: #007bff;
-    cursor: pointer;
-    padding: 6px;
-    line-height: 1;
-}
-
-/* keep the rotate effect when collapsed */
-.sidebar.collapsed .sidebar-toggle {
-    transform: rotate(180deg);
-}
-/* keep sidebar-title spacing consistent */
-.sidebar-title {
-    margin: 0;
-    font-size: 18px;
-    color: #007bff;
-}
-/* make the toggle link use the same layout as other sidebar items */
-.sidebar ul li a.sidebar-toggle {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    width: 100%;
-    color: #333;
-    text-decoration: none;
-    background: none;
-    border: none;
-    box-sizing: border-box;
-}
-.sidebar ul li a.sidebar-toggle .icon {
-    width: 28px;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    color: #007bff;
-}
-.sidebar ul li a.sidebar-toggle:hover {
-    color: #007bff;
-    background: rgba(0,123,255,0.06);
-    border-radius: 6px;
-}
 
 .firsttr:first-child th {
     background: #242424;

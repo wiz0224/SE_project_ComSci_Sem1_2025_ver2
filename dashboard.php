@@ -38,20 +38,19 @@ if (isset($_SESSION['show_popup']) && $_SESSION['show_popup'] === true) {
     </div>
     <?php endif; ?>
 
-    <div class="sidebar collapsed" id="sidebar" aria-expanded="false">
-         <ul>
-            <li>
-                <a href="#" id="sidebarToggle" class="sidebar-toggle" role="button" aria-label="Toggle menu" aria-pressed="false">
-                    <span class="icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12h18"/><path d="M3 6h18"/><path d="M3 18h18"/></svg></span>
-                    <span class="label">Menu</span>
-                </a>
-            </li>
-             <li><a href="#"><span class="icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12h18"/><path d="M3 6h18"/><path d="M3 18h18"/></svg></span><span class="label">Dashboard</span></a></li>
-             <li><a href="#"><span class="icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="3"/><path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg></span><span class="label">Receivers</span></a></li>
-             <li><a href="#"><span class="icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3h18v12H3z"/><path d="M7 21h10"/></svg></span><span class="label">Reports</span></a></li>
-             <li><a href="#"><span class="icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/><path d="M19.4 15a1.6 1.6 0 0 0 .2 1.9l.1.1-1.5 1.5-.1-.1a1.6 1.6 0 0 0-1.9-.2 6.7 6.7 0 0 1-2.3.9l-.3 1.8h-2l-.3-1.8a6.7 6.7 0 0 1-2.3-.9 1.6 1.6 0 0 0-1.9.2l-.1.1L4.3 17l.1-.1a1.6 1.6 0 0 0 .2-1.9 6.7 6.7 0 0 1-.9-2.3L2 12v-2l1.8-.3a6.7 6.7 0 0 1 .9-2.3A1.6 1.6 0 0 0 4 5.3L4.1 5 5.6 6.5l-.1.1a1.6 1.6 0 0 0 .2 1.9c.6.7 1.1 1.5 1.4 2.4"/></svg></span><span class="label">Settings</span></a></li>
-         </ul>
-     </div>
+    <div class="sidebar collapsed" id="sidebar">
+    <!-- Toggle behaves like a menu item -->
+    <button class="menu-item" onclick="toggleSidebar()">
+      <span class="icon">☰</span>
+      <span class="menu-text">Menu</span>
+    </button>
+
+    <div class="menu-item"><span class="icon">🏠</span><span class="menu-text">Home</span></div>
+    <div class="menu-item"><span class="icon">👤</span><span class="menu-text">Profile</span></div>
+    <div class="menu-item"><span class="icon">⚙️</span><span class="menu-text">Settings</span></div>
+    <div class="menu-item"><span class="icon">🚪</span><span class="menu-text">Logout</span></div>
+  </div>
+
      
          <div class="grouped" >
              <div><h1 style="margin-bottom: 0; font-size: 2rem; display: inline; vertical-align: middle;">Educational Assistance list </h1><h3 style="color:#333;">Brgy.Lidong, Sto.Domingo, Albay</h3></div>
@@ -154,29 +153,9 @@ $result = $conn->query($sql);
     </div>
 </footer>
 <script>
-(function () {
-    var toggle = document.getElementById('sidebarToggle');
-    var sidebar = document.getElementById('sidebar');
-    if (!toggle || !sidebar) return;
-
-    if (sidebar.classList.contains('collapsed')) {
-        document.body.classList.add('sidebar-collapsed');
-        toggle.setAttribute('aria-pressed', 'true');
-        sidebar.setAttribute('aria-expanded', 'false');
-    } else {
-        document.body.classList.remove('sidebar-collapsed');
-        toggle.setAttribute('aria-pressed', 'false');
-        sidebar.setAttribute('aria-expanded', 'true');
-    }
-
-    toggle.addEventListener('click', function (e) {
-        if (e && typeof e.preventDefault === 'function') e.preventDefault();
-        var isCollapsed = sidebar.classList.toggle('collapsed');
-        toggle.setAttribute('aria-pressed', isCollapsed ? 'true' : 'false');
-        sidebar.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
-    });
-})();
-
+function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("collapsed");
+}
 // Popup logic
 window.onload = function() {
     var popup = document.getElementById("welcomePopup");
