@@ -154,6 +154,7 @@ $result = $conn->query($sql);
  
         echo "</table>";
      } else {
+        
         echo "No results found.";
      }
  ?>
