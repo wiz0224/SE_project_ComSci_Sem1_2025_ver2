@@ -123,7 +123,7 @@ $result = $conn->query($sql);
      if ($result->num_rows > 0) {
         echo "<table border='1' cellpadding='15'>";
 
-        echo "<tr class='firsttr'><th>ID</th><th>Last Name</th><th>First Name</th><th>Course & Year</th><th>School</th><th>Email</th><th>Address</th><th>Status</th><th>Date</th><th>Action</th></tr>";
+        echo "<tr class='firsttr'><th>ID</th><th>Last Name</th><th>First Name</th><th>Course & Year</th><th>School</th><th>Email</th><th>Address</th><th>Status</th><th>Date Delivered</th><th>Action</th></tr>";
 
         
          while ($row = $result->fetch_assoc()) {
@@ -140,7 +140,12 @@ $result = $conn->query($sql);
             else{
                 echo "<td style='background:#fffba8;' >Pending</td>";
             }
-            echo "<td> 01/23/25</td>";
+            
+            if ($row["status"] == 1){
+                echo "<td>".$row["date"]."</td>";}
+            else{
+                echo "<td>Not Applicable</td>";
+            }
             echo "<td><button type='button' class='btn btn-outline-info btn-sm'>Update</button></td>";
             echo "</tr>";
          }
