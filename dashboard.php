@@ -33,7 +33,7 @@ if (isset($_SESSION['show_popup']) && $_SESSION['show_popup'] === true) {
             <span class="close-btn" id="closePopupBtn">&times;</span>
             <h2>Welcome, <?php echo htmlspecialchars($fullName); ?>!</h2>
             <p>You have successfully logged in.</p>
-            <button id="goDashboard" class="btn btn-primary">Continue</button>
+            <button id="goDashboard">Continue</button>
         </div>
     </div>
     <?php endif; ?>
@@ -114,7 +114,7 @@ if (!empty($conditions)) {
 if ($order === 'lastname_asc') {
     $sql .= " ORDER BY lastname ASC";
 } elseif ($order === 'lastname_desc') {
-    $sql .= " ORDER BY lastname DESC";
+    $sql .= " ORDER BY lastname DESC"; 
 } else {
     $sql .= " ORDER BY ID";
 }
