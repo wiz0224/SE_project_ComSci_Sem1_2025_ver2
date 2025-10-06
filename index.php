@@ -8,17 +8,25 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-     <div class="container" id="signUp" style="display: none;">
+<?php
+$showSignIn = true;
+if (isset($_GET['registered'])) {
+    $showSignIn = true;
+} elseif (isset($_GET['showSignUp'])) {
+    $showSignIn = false;
+}
+?>
+     <div class="container" id="signUp" style="display: <?php echo $showSignIn ? 'none' : 'block'; ?>;">
         <h1 class="form-title">Register</h1>
         <form method="post" action="register.php">
             <div class="input-group">
                 <i class="fa fa-user"></i>
-                <input type="text" name="fName" id="fName" placeholder="First Name" required>
+                <input type="text" name="firstName" id="fName" placeholder="First Name" required>
                 <label for="fName">First Name</label>
             </div>
             <div class="input-group">
                 <i class="fa fa-user"></i>
-                <input type="text" name="lName" id="lName" placeholder="Last Name" required>
+                <input type="text" name="lastName" id="lName" placeholder="Last Name" required>
                 <label for="lName">Last Name</label>
             </div>
             <div class="input-group">
@@ -31,6 +39,11 @@
                 <input type="password" name="password" id="password" placeholder="Password" required>
                 <label for="password">Password</label>
             </div>
+            <div class="input-group">
+                <i class="fa fa-lock"></i>
+                <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password" required>
+                <label for="confirm_password">Confirm Password</label>
+            </div>
             <input type="submit" class="btn" value="Sign Up" name="signup">
         </form>
          <div class="admin-info">
@@ -42,9 +55,9 @@
          </div>
     </div>
 
-    <div class="container" id="signIn">  
+    <div class="container" id="signIn" style="display: <?php echo $showSignIn ? 'block' : 'none'; ?>;">  
         <h1 class="form-title">Admin Sign In</h1>
-        <?php if (isset($_GET['error'])): ?>
+        <?php if (isset($_GET['error']) && $_GET['error'] == 1): ?>
         <div id="error-message" style="color: red; margin-bottom: 10px;justify-content: center; text-align: center;">
             Invalid email or password!
         </div>
@@ -75,6 +88,11 @@
          </div>
     </div>
    <script src="script.js"></script>
+   <script>
+if (window.location.search.includes('error=1')) {
+    window.history.replaceState({}, document.title, window.location.pathname);
+}
+</script>
    
 </body>
 </html>
