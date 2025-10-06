@@ -59,7 +59,9 @@ if (isset($_SESSION['show_popup']) && $_SESSION['show_popup'] === true) {
          <div class="grouped" >
              <div><h1 style="margin-bottom: 0; font-size: 2rem; display: inline; vertical-align: middle;">Educational Assistance list </h1><h3 style="color:#333;">Brgy.Lidong Sto.Domingo, Albay</h3></div>
 
-            <div class="profilehorizontal"><div><img src="images/vecteezy_profile-icon-design-vector_5544718.jpg" alt="" style="width:60px;padding:2px;margin-right:20px;"><h3 style="margin-bottom: 0; display: inline; vertical-align: middle;">profile</h3></div> <button type="button" class="btn btn-primary">:</button> </div> 
+            <div class="profilehorizontal"><div><img src="images/vecteezy_profile-icon-design-vector_5544718.jpg" alt="" style="width:60px;padding:2px;margin-right:20px;"><h3 style="margin-bottom: 0; display: inline; vertical-align: middle;">
+    <?php echo htmlspecialchars($fullName); ?>
+</h3></div> <button type="button" class="btn btn-primary">:</button> </div> 
 
         </div>
     </div>
