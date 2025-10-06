@@ -5,6 +5,7 @@ if (!isset($_SESSION['firstName'])) {
     exit();
 }
 $fullName = $_SESSION['firstName'] . ' ' . $_SESSION['lastName'];
+$adminpos = $_SESSION['email'];
 
 // Show popup only on first login, then unset the session variable
 $showPopup = false;
@@ -39,34 +40,39 @@ if (isset($_SESSION['show_popup']) && $_SESSION['show_popup'] === true) {
     <?php endif; ?>
 
     <div class="sidebar collapsed" id="sidebar">
-    <!-- Toggle behaves like a menu item -->
-    <button class="menu-item" onclick="toggleSidebar()">
-      <span class="icon">☰</span>
-      <h4 class="menu-text" style="margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;">Menu</h4>
-    </button>
-
-
-    <a href="accept.php" class="menu-item" style="text-decoration:none;">
-        <span class="icon">✓</span><h4 class="menu-text" style="margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;">Accept</h4>
-    </a>
-    <a href="calendar.php" class="menu-item" style="text-decoration:none;   "><span class="icon">++</span><h4 class="menu-text" style="margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;">calendar</h4></a>
+        <button class="menu-item" onclick="toggleSidebar()">
+            <span class="icon">☰</span>
+            <h4 class="menu-text" style="margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;">Menu</h4>
+        </button>
         
-    <div class="menu-item"><span class="icon">|||</span><h4 class="menu-text" style="margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;">Settings</h4></div>
+        <a href="accept.php" class="menu-item" style="text-decoration:none;">
+            <span class="icon">✓</span><h4 class="menu-text" style="margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;">Accept</h4>
+        </a>
+        
+        <a href="calendar.php" class="menu-item" style="text-decoration:none;   ">
+            <span class="icon">++</span><h4 class="menu-text" style="margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;">calendar</h4>
+        </a>
     
-  </div>
+        
+        <div class="menu-item"><h4 class="menu-text"></h4><button style="width:100%;height:1.8rem;margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;overflow:hidden;margin-left:40px;" onclick="toggleDarkMode()">Dark Mode</button></div>
+    
+    </div>
 
      
          <div class="grouped" >
-             <div><h1 style="margin-bottom: 0; font-size: 2rem; display: inline; vertical-align: middle;">Educational Assistance list </h1><h3 style="color:#333;">Brgy.Lidong Sto.Domingo, Albay</h3></div>
+             <div><h1 style="margin-bottom: 0; font-size: 2rem; display: inline; vertical-align: middle;">Educational Assistance list </h1><h3>Brgy.Lidong Sto.Domingo, Albay</h3>
+</div>
 
-            <div class="profilehorizontal"><div><img src="images/vecteezy_profile-icon-design-vector_5544718.jpg" alt="" style="width:60px;padding:2px;margin-right:20px;"><h3 style="margin-bottom: 0; display: inline; vertical-align: middle;">
-    <?php echo htmlspecialchars($fullName); ?>
-</h3></div> <button type="button" class="btn btn-primary">:</button> </div> 
+                <div class="profilehorizontal"><div class="profilehorizontal"><img src="images/vecteezy_profile-icon-design-vector_5544718.jpg" alt="" style="width:60px;padding:2px;margin-right:20px;">
+                    <div style="display:flex;flex-direction:column;"><h3 style="margin-bottom: 0; display: inline; vertical-align: middle;">
+                <?php echo htmlspecialchars($fullName); ?></h3><?php echo htmlspecialchars($adminpos) ?></div>
+            <button type="button" class="btn btn-primary">:</button> 
+        </div> 
 
         </div>
     </div>
  <div class= 'nametable'>
-    <form method="GET" class="controls-form" style="width:100%; display:flex;  align-items:center; margin-bottom:8px;background:#bbebff; padding:8px; border-radius:10px;justify-content: flex-end;" id="letterForm">
+    <form method="GET" class="controls-form" style="width:100%; display:flex;  align-items:center; margin-bottom:8px;background:var(--tr-hover-background-color); padding:8px; border-radius:10px;justify-content: flex-end;" id="letterForm">
         <div style="display:flex; align-items:center; gap:6px; margin-right:12px;">
             <?php if (isset($_GET['search']) && $_GET['search'] !== ''): ?>
                 <input type="hidden" name="search" value="<?php echo htmlspecialchars($_GET['search']); ?>">
@@ -138,9 +144,9 @@ $result = $conn->query($sql);
             echo "<td class='email-cell'>". $row["email"]."</td>";
             echo "<td>". $row["address"]."</td>";
             if ($row["status"] == 1){
-                echo "<td style='background:#80ff9f;'>Delivered</td>";}
+                echo "<td style='background:var(--green-correct);'>Delivered</td>";}
             else{
-                echo "<td style='background:#fffba8;' >Pending</td>";
+                echo "<td style='background:var(--pending);' >Pending</td>";
             }
             
             if ($row["status"] == 1){
@@ -191,13 +197,17 @@ window.onload = function() {
         }
     }
 }
+
+
+  const isDark = localStorage.getItem('darkMode') === 'true';
+  if (isDark) document.body.classList.add('dark-mode');
+
+  function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+  }
+
 </script>
-</body>
+</body> 
 </html>
 
-<style>
-/* Add to styles.css */
-.email-cell {
-    text-transform: none !important;
-}
-</style>
