@@ -36,9 +36,12 @@ $result = $conn->query($sql);
 </head>
 <body>
 <div class="container mt-4">
+    <div style="margin-bottom: 15px;">
+        <a href="dashboard.php" class="btn btn-secondary btn-sm">← Back</a>
+    </div>
     <h2>Pending Registrations</h2>
     <?php
-    // Display status messages from redirect
+    // Display status messages from redirect (Ito ang code na hindi ko ginalaw)
     if (isset($_GET['status'])) {
         $status = $_GET['status'];
         if ($status == 'accepted') {
