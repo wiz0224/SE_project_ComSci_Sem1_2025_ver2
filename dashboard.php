@@ -131,7 +131,18 @@ $result = $conn->query($sql);
      if ($result->num_rows > 0) {
         echo "<table border='1' cellpadding='15'>";
 
-        echo "<tr class='firsttr'><th>ID</th><th>Last Name</th><th>First Name</th><th>Course & Year</th><th>School</th><th>Contact</th><th>Email</th><th>Address</th><th>Status</th><th>Date Delivered</th><th>Action</th></tr>";
+        echo "<tr class='firsttr'>
+        <th>ID</th>
+        <th>Last Name</th>
+        <th>First Name</th>
+        <th>Course & Year</th>
+        <th>School</th>
+        <th>Contact</th>
+        <th>Email</th>
+        <th>Address</th>
+        <th>Status</th>
+        <th>Date Delivered</th>
+        <th>Action</th></tr>";
 
         
          while ($row = $result->fetch_assoc()) {
@@ -211,4 +222,3 @@ window.onload = function() {
 </script>
 </body> 
 </html>
-

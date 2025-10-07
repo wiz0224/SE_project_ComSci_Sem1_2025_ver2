@@ -22,10 +22,10 @@ $result = $conn->query($sql);
     </style>
 </head>
 <body>
-<div class="container mt-4">
+<div class="cont">
     <h2>Pending Registrations</h2>
     <?php if ($result && $result->num_rows > 0): ?>
-        <table class="table table-bordered">
+        <table class="containerreg">
             <thead>
                 <tr>
                     <th>ID</th>
