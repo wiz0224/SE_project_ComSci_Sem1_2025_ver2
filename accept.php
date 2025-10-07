@@ -33,6 +33,7 @@ $result = $conn->query($sql);
                     <th>First Name</th>
                     <th>Course & Year</th>
                     <th>School</th>
+                    <th>Contact</th>
                     <th>Email</th>
                     <th>Address</th>
                     <th>Date</th>
@@ -54,6 +55,7 @@ $result = $conn->query($sql);
                     <td><?= htmlspecialchars($row['firstname']) ?></td>
                     <td><?= htmlspecialchars($row['c&y']) ?></td>
                     <td><?= htmlspecialchars($row['school']) ?></td>
+                    <td><?= htmlspecialchars($row['contact']) ?></td>
                     <td class="email-cell"><?= htmlspecialchars($row['email']) ?></td>
                     <td><?= htmlspecialchars($row['address']) ?></td>
                     <td><?= htmlspecialchars($row['date']) ?></td>
