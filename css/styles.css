@@ -306,6 +306,7 @@ body.dark-mode .close-btn:hover {
 }
 
 
+
 /* For Registration form=====> */
 
 .containerreg {
@@ -331,7 +332,7 @@ body.dark-mode .close-btn:hover {
 }
 .containerreg input:focus {
   border-color: #007bff;
-  outline: none;
+  outline: none;  
 }
 .containerreg textarea {
   background: var(--body-bg); 
@@ -345,4 +346,8 @@ body.dark-mode .close-btn:hover {
   transition: background 0.3s, color 0.3s, border-color 0.3s;
 }
 
-/* ============================================== */
+
+.email-cell {
+    text-transform: none;
+}
+
