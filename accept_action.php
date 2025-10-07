@@ -102,8 +102,7 @@ if (isset($_POST['confirmed']) && $_POST['confirmed'] === 'true') {
         var id = <?php echo json_encode($id); ?>;
         var fullName = "<?php echo $full_name; ?>";
 
-        if (confirm('Are you sure you want to ACCEPT and add ' + fullName + ' to the list of assistance recipients?')) {
-            // User clicked OK: resubmit the form with a confirmation flag
+       if (confirm('Are you sure you want to ACCEPT and add ' + fullName + ' to the list of assistance recipients?')) { // User clicked OK: resubmit the form with a confirmation flag
             var form = document.createElement('form');
             form.method = 'POST';
             form.action = 'accept_action.php';

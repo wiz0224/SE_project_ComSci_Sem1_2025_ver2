@@ -42,13 +42,13 @@ $result = $conn->query($sql);
     if (isset($_GET['status'])) {
         $status = $_GET['status'];
         if ($status == 'accepted') {
-            echo '<div class="alert alert-success">Registration successfully Accepted and added to the recipients list!</div>';
+            echo '<div class="alert alert-success">Registration successfully ACCEPT and added to the recipients list!</div>';
         } elseif ($status == 'cancelled') {
-            echo '<div class="alert alert-warning">Acceptance Cancelled by user.</div>';
+            echo '<div class="alert alert-warning">Acceptance CANCELLED by user.</div>';
         } elseif ($status == 'notified') {
-            echo '<div class="alert alert-danger">Registrant was marked Ineligible, removed from pending, and an email notification was sent.</div>';
+            echo '<div class="alert alert-danger">Registrant was marked INELIGIBLE, removed from pending, and an email notification was sent.</div>';
         } elseif ($status == 'notification_cancelled') {
-            echo '<div class="alert alert-info">Ineligibility notification Cancelled by user.</div>';
+            echo '<div class="alert alert-info">Ineligibility notification CANCELLED by user.</div>';
         } elseif ($status == 'error') {
             echo '<div class="alert alert-danger">An error occurred during the process. Please check the logs.</div>';
         }
@@ -79,7 +79,7 @@ $result = $conn->query($sql);
                 $is_duplicate = false;
                 $reason = "";
 
-                // --- 1. Check for Exact Duplicate (7 fields match) ---
+                // --- Check for Exact Duplicate (7 fields match) ---
                 $stmt_duplicate = $conn->prepare("
                     SELECT id FROM receivers 
                     WHERE lastname = ? AND firstname = ? AND `c&y` = ? AND school = ? AND contact = ? AND email = ? AND address = ? 
@@ -98,7 +98,7 @@ $result = $conn->query($sql);
                 }
                 $stmt_duplicate->close();
 
-                // --- 2. Check for 6-Month Rule (if NOT a duplicate) ---
+                // --- Check for 6-Month Rule (if NOT a duplicate) ---
                 if (!$is_duplicate) {
                     $stmt_check_6mos = $conn->prepare("
                         SELECT date FROM receivers 

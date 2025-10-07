@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['id'])) {
 $id = intval($_POST['id']);
 $reason = isset($_POST['reason']) ? $_POST['reason'] : "N/A (Reason not specified)";
 
-// --- Step 1: Check for Confirmation Status ---
+// --- Check for Confirmation Status ---
 if (isset($_POST['confirmed']) && $_POST['confirmed'] === 'true') {
     // --- Execution block: User has confirmed (Clicked OK) ---
 
@@ -25,7 +25,7 @@ if (isset($_POST['confirmed']) && $_POST['confirmed'] === 'true') {
     $name_to_redirect = "registrant";
 
     try {
-        // 1. Get the registration info
+        // Get the registration info
         $sql = "SELECT * FROM pending_registrations WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $id);
@@ -35,24 +35,7 @@ if (isset($_POST['confirmed']) && $_POST['confirmed'] === 'true') {
         if ($result && $result->num_rows > 0) {
             $row = $result->fetch_assoc();
             $name_to_redirect = $row['lastname'];
-            
-            // 2. Send notification email (Based on the reason)
-           $to = $row['email']; 
-           $subject = "Update on Educational Assistance Application";
-           $message = "Dear Mr./Ms. " . $row['firstname'] . " " . $row['lastname'] . ",\n\n"
-         . "We would like to inform you that your application has been processed. Currently, you are not qualified for the assistance.\n\n"
-         . "Reason for Ineligibility: **" . $reason . "**\n\n"
-         . "A representative from the office has called you at your registered contact number to personally explain the details of the decision.\n\n"
-         . "Thank you very much for your understanding.\n\n"
-         . "Sincerely,\n"
-         . "Educational Assistance Administration Office";
-                     
-            $from = $_SESSION['email']; 
-            $headers = "From: " . $from . "\r\n";
-            
-            // mail($to, $subject, $message, $headers); // Uncomment if mail is configured
-
-            // 3. Remove from pending_registrations
+            // Remove from pending_registrations
             $delete = $conn->prepare("DELETE FROM pending_registrations WHERE id = ?");
             $delete->bind_param("i", $id);
 
@@ -114,8 +97,9 @@ if (isset($_POST['confirmed']) && $_POST['confirmed'] === 'true') {
         var reason = "<?php echo htmlspecialchars($reason); ?>";
 
         var message = 'IMPORTANT REMINDER: You must first call ' + fullName + ' at Contact Number: ' + contact + ' to inform him/her that they are not eligible.\n\n' +
-              '**Reason:** ' + reason + '\n\n' +
-              'After calling, press "OK" to send the email notification and delete the record from the pending list.';
+              'Reason: ' + reason + '\n\n' +
+              'After calling, press "OK" delete the record from the pending list.';
+
         if (confirm(message)) {
             // User clicked OK: resubmit the form with a confirmation flag
             var form = document.createElement('form');
