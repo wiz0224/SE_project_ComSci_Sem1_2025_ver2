@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['id'])) {
 
 $id = intval($_POST['id']);
 
-// --- Step 1: Check for Confirmation Status ---
+// --- Check for Confirmation Status ---
 if (isset($_POST['confirmed']) && $_POST['confirmed'] === 'true') {
     // --- Execution block: User has confirmed (Clicked OK) ---
 
@@ -24,7 +24,7 @@ if (isset($_POST['confirmed']) && $_POST['confirmed'] === 'true') {
     $success = false;
 
     try {
-        // 1. Get the registration info
+        // Get the registration info
         $sql = "SELECT * FROM pending_registrations WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $id);
@@ -34,7 +34,7 @@ if (isset($_POST['confirmed']) && $_POST['confirmed'] === 'true') {
         if ($result && $result->num_rows > 0) {
             $row = $result->fetch_assoc();
 
-            // 2. Insert into receivers table (NOTE: Date will be NOW() as the acceptance date)
+            // Insert into receivers table (NOTE: Date will be NOW() as the acceptance date)
             $insert = $conn->prepare("INSERT INTO receivers (lastname, firstname, `c&y`, school, contact, email, address, status, date) VALUES (?, ?, ?, ?, ?, ?, ?, 0, NOW())");
             $insert->bind_param(
                 "sssssss",
@@ -48,7 +48,7 @@ if (isset($_POST['confirmed']) && $_POST['confirmed'] === 'true') {
             );
 
             if ($insert->execute()) {
-                // 3. Remove from pending_registrations
+                // Remove from pending_registrations
                 $delete = $conn->prepare("DELETE FROM pending_registrations WHERE id = ?");
                 $delete->bind_param("i", $id);
                 if ($delete->execute()) {

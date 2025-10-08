@@ -22,12 +22,12 @@ if (isset($_SESSION['show_popup']) && $_SESSION['show_popup'] === true) {
     <title>Document</title>
     <link rel="stylesheet" href="css/bootstrap.min.css">    
     <link rel="stylesheet" href="css/styles.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <?php include 'conn.php'; ?>
     
 </head>
 <body class="sidebar-collapsed">
 
-    <!-- Popup overlay -->
     <?php if ($showPopup): ?>
     <div id="welcomePopup" class="popup">
         <div class="popup-content">
@@ -46,17 +46,20 @@ if (isset($_SESSION['show_popup']) && $_SESSION['show_popup'] === true) {
         </button>
         
         <a href="accept.php" class="menu-item" style="text-decoration:none;">
-            <span class="icon">✓</span><h4 class="menu-text" style="margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;">Accept</h4>
+            <span class="icon"><i class='bxr  bxs-bell-check'  ></i> </i></span><h4 class="menu-text" style="margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;">Accept</h4>
         </a>
         
         <a href="calendar.php" class="menu-item" style="text-decoration:none;   ">
-            <span class="icon">++</span><h4 class="menu-text" style="margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;">calendar</h4>
+            <span class="icon"><i class='bx bxs-calendar-alt'></i></span><h4 class="menu-text" style="margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;">calendar</h4>
         </a>
     
-        
-        <div class="menu-item"><h4 class="menu-text"></h4><button style="width:100%;height:1.8rem;margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;overflow:hidden;margin-left:40px;" onclick="toggleDarkMode()">Dark Mode</button></div>
-    
-    </div>
+        <button onclick="toggleDarkMode()" class="menu-item">
+            <span class="icon">
+                <i id="darkModeIcon" class='bx bxs-toggle-left bx-flip-vertical'></i>
+            </span>
+            <h4 class="menu-text" style="margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;">Dark Mode</h4>
+        </button>
+        </div>
 
      
          <div class="grouped" >
@@ -103,7 +106,7 @@ if (isset($_SESSION['show_popup']) && $_SESSION['show_popup'] === true) {
      
      <?php
 $search = isset($_GET['search']) ? $conn->real_escape_string($_GET['search']) : '';
-$letter = isset($_GET['letter']) ? $conn->real_escape_string($_GET['letter']) : '';
+$letter = isset($_GET['letter']) ? $conn->real_escape_string($letter) : '';
 $order = isset($_GET['order']) ? $_GET['order'] : '';
 
 $conditions = [];
@@ -178,7 +181,6 @@ $result = $conn->query($sql);
  ?>
 </div>
 
-<!-- Footer -->
 <footer>
     <div class="horizontal_footer">
         <div class = 'footer_div'><div>Privacy Policy</div><div>Contact Support</div></div>
@@ -211,13 +213,30 @@ window.onload = function() {
 }
 
 
-  const isDark = localStorage.getItem('darkMode') === 'true';
-  if (isDark) document.body.classList.add('dark-mode');
+// UPDATED DARK MODE LOGIC
+const darkModeIcon = document.getElementById('darkModeIcon');
 
-  function toggleDarkMode() {
+// Function to set the icon based on state
+function setDarkModeIcon(isDark) {
+    if (isDark) {
+        darkModeIcon.className = 'bx bxs-toggle-right bx-flip-horizontal';
+    } else {
+        darkModeIcon.className = 'bx bxs-toggle-left bx-flip-vertical';
+    }
+}
+
+// Initial check for dark mode
+const isDark = localStorage.getItem('darkMode') === 'true';
+if (isDark) document.body.classList.add('dark-mode');
+setDarkModeIcon(isDark); // Set icon on load
+
+function toggleDarkMode() {
     document.body.classList.toggle('dark-mode');
-    localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
-  }
+    const newState = document.body.classList.contains('dark-mode');
+    localStorage.setItem('darkMode', newState);
+    setDarkModeIcon(newState); // Update icon on toggle
+}
+// END UPDATED DARK MODE LOGIC
 
 </script>
 </body> 

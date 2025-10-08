@@ -20,6 +20,7 @@ $result = $conn->query($sql);
     <title>Pending Registrations</title>
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/styles.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'> 
     <style>
         /* Highlight rows that are potentially ineligible (received within 6 months) */
         .ineligible-row {
@@ -36,7 +37,7 @@ $result = $conn->query($sql);
 </head>
 <body>
 <div class="container mt-4">
-    <div style="margin-bottom: 15px;">
+    <div style="margin-bottom: 10px;">
         <a href="dashboard.php" class="btn btn-secondary btn-sm">← Back</a>
     </div>
     <h2>Pending Registrations</h2>
@@ -168,5 +169,11 @@ $result = $conn->query($sql);
         <div class="alert alert-info">No pending registrations.</div>
     <?php endif; ?>
 </div>
+
+<script>
+    // Initial check for dark mode and apply body class
+    const isDark = localStorage.getItem('darkMode') === 'true';
+    if (isDark) document.body.classList.add('dark-mode');
+</script>
 </body>
 </html>
