@@ -30,17 +30,15 @@ $result = $conn->query($sql);
         .duplicate-row {
             background-color: #ff9999; /* Darker red for severe ineligibility (Duplicate) */
         }
-        .eligible-row {
-            background-color: #ccffcc; /* Light green for acceptance */
-        }
+        
     </style>
 </head>
 <body>
-<div class="container mt-4">
-    <div style="margin-bottom: 10px;">
-        <a href="dashboard.php" class="btn btn-secondary btn-sm">← Back</a>
+<div class="containeraccept">
+    <div style="margin-bottom: 10px;display:flex;justify-content:space-between;align-items:center;margin:2% 0;">
+        <h2>Pending Registrations</h2><a href="dashboard.php" class="btn btn-secondary btn-sm">← Back</a>
     </div>
-    <h2>Pending Registrations</h2>
+    
     <?php
     // Display status messages from redirect (Ito ang code na hindi ko ginalaw)
     if (isset($_GET['status'])) {
@@ -60,13 +58,13 @@ $result = $conn->query($sql);
     ?>
 
     <?php if ($result && $result->num_rows > 0): ?>
-        <table class="table table-bordered table-striped">
+        <table border="1" colspan="2" class="tableaccept">
             <thead>
                 <tr>
                     <th>ID</th>
                     <th>Last Name</th>
                     <th>First Name</th>
-                    <th>C&Y</th>
+                    <th>Course and Year</th>
                     <th>School</th>
                     <th>Contact</th>
                     <th>Email</th>

@@ -15,6 +15,7 @@
   --h1-color:black;
   --green-correct:#80ff9f;
   --pending:#7ce7fd;
+  --accepted:#ccffcc;
 }
 
 /* Dark Mode Variables */
@@ -34,7 +35,7 @@ body.dark-mode {
   --h1-color:white;
   --green-correct:#30c93d;
   --pending:#2947c0;
-
+  --accepted:#2e8b33;
 }
 /*==========================================================*/
 
@@ -60,6 +61,8 @@ table {
   word-wrap: break-word;
   overflow-wrap: break-word; ;
 }
+
+
 
 .horizontal_text {
   padding: 10px;
@@ -308,8 +311,19 @@ body.dark-mode .close-btn:hover {
 
 
 /* For Registration form=====> */
-
+.containeraccept {
+  
+  background: var(--body-bg);
+  color: var(--text-color);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  margin: 50px auto;
+  transition: background 0.3s, color 0.3s;
+}
 .containerreg {
+  
   background: var(--body-bg);
   color: var(--text-color);
   padding: 20px;
@@ -352,3 +366,6 @@ body.dark-mode .close-btn:hover {
 }
 
 
+.eligible-row {
+  background-color: var(--accepted); /* Light green for acceptance */
+}
