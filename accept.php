@@ -58,7 +58,7 @@ $result = $conn->query($sql);
     ?>
 
     <?php if ($result && $result->num_rows > 0): ?>
-        <table border="1" colspan="2" class="tableaccept">
+        <table border="1" class="tableaccept">
             <thead>
                 <tr>
                     <th>ID</th>
