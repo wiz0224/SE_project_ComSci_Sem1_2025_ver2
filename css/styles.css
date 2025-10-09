@@ -16,7 +16,7 @@
   --green-correct:#80ff9f;
   --pending:#7ce7fd;
   --accepted:#ccffcc;
-  --box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+  --box-shadow: 2px 0 50px rgba(0, 0, 0, 0.05);
 }
 
 /* Dark Mode Variables */
@@ -323,6 +323,10 @@ body.dark-mode .close-btn:hover {
   color: #f8fafc;
 }
 
+table th{
+  text-align: center;
+  padding: 1%;
+}
 
 
 /* For Registration form=====> */

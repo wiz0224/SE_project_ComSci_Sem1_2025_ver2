@@ -20,39 +20,29 @@ $result = $conn->query($sql);
     <title>Pending Registrations</title>
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/styles.css">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'> 
-    <style>
-        /* Highlight rows that are potentially ineligible (received within 6 months) */
-        .ineligible-row {
-            background-color: #ffcccc; /* Light red/pink */
-        }
-        /* Highlight rows that are exact duplicates */
-        .duplicate-row {
-            background-color: #ff9999; /* Darker red for severe ineligibility (Duplicate) */
-        }
-        
-    </style>
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 </head>
 <body>
 <div class="containeraccept">
-    <div style="margin-bottom: 10px;display:flex;justify-content:space-between;align-items:center;margin:2% 0;">
-        <h2>Pending Registrations</h2><a href="dashboard.php" class="btn btn-secondary btn-sm">← Back</a>
+    <div style="margin-bottom: 10px; display:flex; justify-content:space-between; align-items:center; margin:2% 0;">
+        <h2>Pending Registrations</h2>
+        <a href="dashboard.php" class="btn btn-secondary btn-sm">← Back</a>
     </div>
     
     <?php
-    // Display status messages from redirect (Ito ang code na hindi ko ginalaw)
+    // Display status messages from redirect
     if (isset($_GET['status'])) {
         $status = $_GET['status'];
-        if ($status == 'accepted') {
-            echo '<div class="alert alert-success">Registration successfully ACCEPT and added to the recipients list!</div>';
-        } elseif ($status == 'cancelled') {
-            echo '<div class="alert alert-warning">Acceptance CANCELLED by user.</div>';
-        } elseif ($status == 'notified') {
-            echo '<div class="alert alert-danger">Registrant was marked INELIGIBLE, removed from pending, and an email notification was sent.</div>';
-        } elseif ($status == 'notification_cancelled') {
-            echo '<div class="alert alert-info">Ineligibility notification CANCELLED by user.</div>';
-        } elseif ($status == 'error') {
-            echo '<div class="alert alert-danger">An error occurred during the process. Please check the logs.</div>';
+        $messages = [
+            'accepted' => ['success', 'Registration successfully accepted and added to the recipients list!'],
+            'cancelled' => ['warning', 'Acceptance cancelled by user.'],
+            'notified' => ['danger', 'Registrant marked ineligible, removed from pending, and notified by email.'],
+            'notification_cancelled' => ['info', 'Ineligibility notification cancelled by user.'],
+            'error' => ['danger', 'An error occurred during the process. Please check the logs.']
+        ];
+        if (isset($messages[$status])) {
+            [$alertType, $messageText] = $messages[$status];
+            echo "<div class='alert alert-$alertType'>$messageText</div>";
         }
     }
     ?>
@@ -79,7 +69,7 @@ $result = $conn->query($sql);
                 $is_duplicate = false;
                 $reason = "";
 
-                // --- Check for Exact Duplicate (7 fields match) ---
+                // Check for Exact Duplicate (7 fields match)
                 $stmt_duplicate = $conn->prepare("
                     SELECT id FROM receivers 
                     WHERE lastname = ? AND firstname = ? AND `c&y` = ? AND school = ? AND contact = ? AND email = ? AND address = ? 
@@ -93,12 +83,12 @@ $result = $conn->query($sql);
 
                 if ($res_duplicate && $res_duplicate->num_rows > 0) {
                     $is_duplicate = true;
-                    $is_ineligible = true; // Duplicate is the highest level of ineligibility
-                    $reason = "Exact Duplicate Found. Already exists in the recipients list.";
+                    $is_ineligible = true;
+                    $reason = "Exact duplicate found. Already exists in the recipients list.";
                 }
                 $stmt_duplicate->close();
 
-                // --- Check for 6-Month Rule (if NOT a duplicate) ---
+                // Check 6-Month Rule (if NOT a duplicate)
                 if (!$is_duplicate) {
                     $stmt_check_6mos = $conn->prepare("
                         SELECT date FROM receivers 
@@ -125,14 +115,8 @@ $result = $conn->query($sql);
                     $stmt_check_6mos->close();
                 }
 
-                // Determine row class based on eligibility
-                if ($is_duplicate) {
-                    $row_class = 'duplicate-row';
-                } elseif ($is_ineligible) {
-                    $row_class = 'ineligible-row';
-                } else {
-                    $row_class = 'eligible-row';
-                }
+                // Determine row class
+                $row_class = $is_duplicate ? 'duplicate-row' : ($is_ineligible ? 'ineligible-row' : 'eligible-row');
                 ?>
                 
                 <tr class="<?= $row_class ?>">
@@ -150,12 +134,12 @@ $result = $conn->query($sql);
                             <form method="POST" action="notification.php" style="display:inline;">
                                 <input type="hidden" name="id" value="<?= $row['id'] ?>">
                                 <input type="hidden" name="reason" value="<?= htmlspecialchars($reason) ?>">
-                                <button type="submit" class="btn btn-danger btn-sm notify-btn" title="<?= $reason ?>">Notify Ineligible</button>
+                                <button type="submit" class="btn btn-danger btn-sm" title="<?= htmlspecialchars($reason) ?>">Notify Ineligible</button>
                             </form>
                         <?php else: ?>
-                            <form method="POST" action="accept_action.php" style="display:inline;">
+                            <form method="POST" action="review.php" style="display:inline;">
                                 <input type="hidden" name="id" value="<?= $row['id'] ?>">
-                                <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                                <button type="submit" class="btn btn-success btn-sm">Review</button>
                             </form>
                         <?php endif; ?>
                     </td>
@@ -169,9 +153,10 @@ $result = $conn->query($sql);
 </div>
 
 <script>
-    // Initial check for dark mode and apply body class
-    const isDark = localStorage.getItem('darkMode') === 'true';
-    if (isDark) document.body.classList.add('dark-mode');
+    // Apply dark mode if stored
+    if (localStorage.getItem('darkMode') === 'true') {
+        document.body.classList.add('dark-mode');
+    }
 </script>
 </body>
 </html>
