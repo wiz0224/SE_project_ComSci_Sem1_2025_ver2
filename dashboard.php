@@ -12,7 +12,7 @@ $showPopup = false;
 if (isset($_SESSION['show_popup']) && $_SESSION['show_popup'] === true) {
     $showPopup = true;
     unset($_SESSION['show_popup']); // Remove so it only shows once
-}
+}   
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -22,6 +22,7 @@ if (isset($_SESSION['show_popup']) && $_SESSION['show_popup'] === true) {
     <title>Document</title>
     <link rel="stylesheet" href="css/bootstrap.min.css">    
     <link rel="stylesheet" href="css/styles.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <?php include 'conn.php'; ?>
     
 </head>
@@ -49,15 +50,17 @@ if (isset($_SESSION['show_popup']) && $_SESSION['show_popup'] === true) {
             <span class="icon">✓</span><h4 class="menu-text" style="margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;">Accept</h4>
         </a>
         
-        <a href="calendar.php" class="menu-item" style="text-decoration:none;   ">
-            <span class="icon">++</span><h4 class="menu-text" style="margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;">calendar</h4>
+       <a href="calendar.php" class="menu-item" style="text-decoration:none;   ">
+            <span class="icon"><i class='bx bxs-calendar-alt'></i></span><h4 class="menu-text" style="margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;">calendar</h4>
         </a>
     
-        
-        <div class="menu-item"><h4 class="menu-text"></h4><button style="width:100%;height:1.8rem;margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;overflow:hidden;margin-left:40px;" onclick="toggleDarkMode()">Dark Mode</button></div>
-    
-    </div>
-
+        <button onclick="toggleDarkMode()" class="menu-item">
+            <span class="icon">
+                <i id="darkModeIcon" class='bx bxs-toggle-left bx-flip-vertical'></i>
+            </span>
+            <h4 class="menu-text" style="margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;">Dark Mode</h4>
+        </button>
+        </div>
      
          <div class="grouped" >
              <div><h1 style="margin-bottom: 0; font-size: 2rem; display: inline; vertical-align: middle;">Educational Assistance list </h1><h3>Brgy.Lidong Sto.Domingo, Albay</h3>
