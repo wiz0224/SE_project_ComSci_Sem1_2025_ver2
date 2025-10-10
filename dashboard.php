@@ -60,7 +60,11 @@ if (isset($_SESSION['show_popup']) && $_SESSION['show_popup'] === true) {
             </span>
             <h4 class="menu-text" style="margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;">Dark Mode</h4>
         </button>
-        </div>
+
+          <a href="logout.php" class="menu-item" style="text-decoration:none;"onclick="return confirm('Are you sure you want to log out?');">
+        <span class="icon"><i class='bx bx-log-out'></i></span>
+        <h4 class="menu-text" style="margin-bottom: 0; font-size: 0.9rem; display: inline; vertical-align: middle;">Logout</h4></a>
+    </div>
      
          <div class="grouped" >
              <div><h1 style="margin-bottom: 0; font-size: 2rem; display: inline; vertical-align: middle;">Educational Assistance list </h1><h3>Brgy.Lidong Sto.Domingo, Albay</h3>
@@ -69,7 +73,6 @@ if (isset($_SESSION['show_popup']) && $_SESSION['show_popup'] === true) {
                 <div class="profilehorizontal"><div class="profilehorizontal"><img src="images/vecteezy_profile-icon-design-vector_5544718.jpg" alt="" style="width:60px;padding:2px;margin-right:20px;">
                     <div style="display:flex;flex-direction:column;"><h3 style="margin-bottom: 0; display: inline; vertical-align: middle;">
                 <?php echo htmlspecialchars($fullName); ?></h3><?php echo htmlspecialchars($adminpos) ?></div>
-            <button type="button" class="btn btn-primary">:</button> 
         </div> 
 
         </div>
