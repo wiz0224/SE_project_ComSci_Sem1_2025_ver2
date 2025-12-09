@@ -9,10 +9,21 @@
 </head>
 <body>
 <?php
+// Default: Walang pre-fill
+$prefillEmail = ''; 
 $showSignIn = true;
-if (isset($_GET['registered'])) {
+
+// CRITICAL FIX: I-check kung galing sa successful registration (BOTH 'registered' AND 'email' ay present)
+if (isset($_GET['registered']) && isset($_GET['email'])) {
+    $prefillEmail = $_GET['email'];
+    $showSignIn = true; 
+} 
+// Ipakita ang Sign In kung may login error
+elseif (isset($_GET['error']) && $_GET['error'] == 1) {
     $showSignIn = true;
-} elseif (isset($_GET['showSignUp'])) {
+} 
+// Ipakita ang Sign Up kung may 'showSignUp' o iba pang error
+elseif (isset($_GET['showSignUp']) || (isset($_GET['error']) && $_GET['error'] != 1)) {
     $showSignIn = false;
 }
 ?>
@@ -44,7 +55,7 @@ if (isset($_GET['registered'])) {
                 <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password" required>
                 <label for="confirm_password">Confirm Password</label>
             </div>
-            <input type="submit" class="btn" value="Sign Up" name="signup">
+            <input type="submit" class="btn" value="Sign Up" name="signUp">
         </form>
          <div class="admin-info">
             <p><strong>Note:</strong> This system is for authorized government education administrators only.</p>
@@ -57,16 +68,18 @@ if (isset($_GET['registered'])) {
 
     <div class="container" id="signIn" style="display: <?php echo $showSignIn ? 'block' : 'none'; ?>;">  
         <h1 class="form-title">Admin Sign In</h1>
+        
         <?php if (isset($_GET['error']) && $_GET['error'] == 1): ?>
         <div id="error-message" style="color: red; margin-bottom: 10px;justify-content: center; text-align: center;">
             Invalid email or password!
         </div>
         <?php endif; ?>
+        
         <form method="post" action="register.php">
            
             <div class="input-group">
                 <i class="fa fa-envelope"></i>
-                <input type="email" name="email" id="email" placeholder="Email" required>
+                <input type="email" name="email" id="email" placeholder="Email" value="<?= htmlspecialchars($prefillEmail) ?>" required>
                 <label for="email">Email</label>
             </div>
             <div class="input-group">
@@ -89,6 +102,11 @@ if (isset($_GET['registered'])) {
     </div>
    <script src="script.js"></script>
    <script>
+// Fix para sa ERR_CACHE_MISS at Confirm Form Resubmission: 
+// Aalisin ang '?registered=1' mula sa URL pagkatapos ma-load ang page.
+if (window.location.search.includes('registered=1')) {
+    window.history.replaceState({}, document.title, window.location.pathname);
+}
 if (window.location.search.includes('error=1')) {
     window.history.replaceState({}, document.title, window.location.pathname);
 }

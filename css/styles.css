@@ -1,4 +1,6 @@
-/*=============== Color Variables =====================*/
+*, *::before, *::after {
+  box-sizing: border-box;
+}
 :root {
   --body-bg: url("images/download.jpg") no-repeat center center fixed;
   --text-color: #000000;
@@ -39,19 +41,40 @@ body.dark-mode {
   --accepted:#2e8b33;
   --box-shadow: 2px 0 52px rgba(255, 255, 255, 0.122);
 }
-/*==========================================================*/
 
 body {
-  background: var(--body-bg);
+  background-size: cover;
   color: var(--text-color);
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-left: 0;
+  flex-direction: column; /* KEY: Standard vertical layout for body scroll */
+  align-items: center; /* Centers the content wrapper */
+  margin: 0;
   min-height: 100vh;
-  overflow: auto;
+  /* Removed overflow: hidden; to allow page content to scroll vertically */
+  padding: 0; 
   transition: background 0.3s, color 0.3s;
 }
+
+/* Wrapper for content to adjust for fixed sidebar */
+#dashboard-content-wrapper {
+    /* KEY: Takes remaining width and maintains margin for fixed sidebar */
+    width: calc(100% - 200px);
+    margin-left: 200px;
+    transition: margin-left 0.3s ease;
+    min-height: 100vh; /* Ensure it covers the full height */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center content horizontally within the wrapper */
+    overflow-x: hidden; /* KEY: Prevents horizontal scroll from footer/grouped */
+}
+
+body.sidebar-collapsed #dashboard-content-wrapper {
+    width: calc(100% - 50px);
+    margin-left: 50px; /* Collapsed sidebar width */
+}
+
+/* Existing styles below */
 
 table {
   width: 100%;
@@ -86,6 +109,24 @@ table {
   justify-content: center;
 }
 
+/* Sticky Controls Form for Horizontal Table Scroll */
+.controls-form {
+    position: sticky; 
+    left: 0; /* Important: Sticky to the left edge of its scrolling container */
+    top: 0; 
+    min-width: 900px; /* NEW: Forces this element to be as wide as the table */
+    z-index: 100;
+    width: 100%; 
+    display: flex;  
+    align-items: center; 
+    margin-bottom: 8px;
+    background: var(--tr-hover-background-color); 
+    padding: 8px; 
+    border-radius: 10px;
+    justify-content: flex-end;
+}
+
+
 .nametable {
   display: flex;
   width: 90%;
@@ -93,6 +134,9 @@ table {
   flex-direction: column;
   justify-items: space-between;
   flex: 1 0 auto;
+  /* KEY FIX: The horizontal scroll should be applied here. */
+  overflow-x: auto; 
+  padding-bottom: 5px; 
 }
 
 .horizontal {
@@ -111,8 +155,8 @@ footer {
   text-align: start;
   padding: 15px 0;
   width: 100%;
-  position: relative;
-  margin-top: 5%;
+  margin-top: auto;
+  flex-shrink: 0;
 }
 
 .horizontal_footer {
@@ -158,6 +202,7 @@ tr:hover {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 2%;
+  flex-shrink: 0;
 }
 
 h1, h2, h3, h4 {
@@ -180,7 +225,8 @@ h1, h2, h3, h4 {
   flex-direction: column;
   align-items: flex-start;
   transition: width 0.3s ease, padding 0.3s ease, background 0.3s ease;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto; /* KEY: Enables vertical scrolling inside the sidebar */
 }
 
 .sidebar.collapsed {
@@ -225,8 +271,9 @@ h1, h2, h3, h4 {
 }
 
 body.sidebar-collapsed {
-  margin-left: 50px !important;
+    /* Kept this for class activation */
 }
+
 
 .firsttr {
   background: var(--firsttr-bg);
@@ -383,8 +430,141 @@ table th{
 .email-cell {
     text-transform: none;
 }
-
-
-.eligible-row {
-  background-color: var(--accepted); /* Light green for acceptance */
+.calendar-container {
+  /* Reduced width for a smaller appearance */
+  max-width: 500px;
+  width: 90%;
+  background: var(--sidebar-bg);
+  color: var(--text-color);
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: var(--box-shadow);
+  margin: 50px auto;
+  transition: background 0.3s, color 0.3s, box-shadow 0.3s;
 }
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--table-border-color);
+  margin-bottom: 10px; 
+}
+
+.calendar-title-group {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    justify-content: center;
+    position: relative; 
+}
+
+.calendar-title-group h1 {
+    font-size: 1.2rem; 
+    color: var(--h1-color);
+    padding-left: 5rem;
+}
+
+.calendar-back-btn {
+    position: absolute; 
+    left: 0;
+}
+
+.calendar-nav {
+    white-space: nowrap;
+}
+
+.calendar-nav button, .calendar-back-btn {
+  background: var(--horizontal-bg);
+  color: var(--text-color);
+  border: 1px solid var(--table-border-color);
+  padding: 5px 10px;
+  margin: 0 3px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s, border-color 0.3s;
+  font-size: 0.85rem;
+}
+
+.calendar-nav button:hover, .calendar-back-btn:hover {
+  background: var(--menu-item-hover-background);
+}
+
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  text-align: center;
+}
+
+.day-header {
+  font-weight: bold;
+  padding: 5px 0; 
+  color: var(--text-color);
+  font-size: 0.75rem; 
+}
+
+.day-cell {
+  height: 60px; 
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 5px; 
+  border-radius: 4px;
+  border: 1px solid var(--table-border-color);
+  background: var(--horizontal-bg);
+  cursor: pointer;
+  transition: background 0.3s, border-color 0.3s;
+}
+
+.day-cell:hover {
+  background: var(--tr-hover-background-color);
+}
+
+.empty-cell {
+  background: var(--grouped-bg);
+  border: 1px solid var(--table-border-color);
+  cursor: default;
+  opacity: 0.5; 
+}
+
+.day-number {
+  font-weight: bold;
+  font-size: 0.9rem; 
+  color: var(--text-color);
+}
+/* Reusable Back Button Style - Mimics calendar button look */
+.custom-back-btn {
+    display: flex; 
+    align-items: center;
+    padding: 6px 12px;
+    border: 1px solid var(--table-border-color); /* Uses dark mode variable */
+    border-radius: 6px;
+    background: var(--horizontal-bg); /* Uses dark mode variable */
+    color: var(--text-color); /* Uses dark mode variable */
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 0.85rem; /* Stable font size */
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.custom-back-btn:hover {
+    background: var(--menu-item-hover-background);
+}
+
+/* Responsive Table Wrapper */
+.table-responsive-wrapper {
+    overflow-x: visible; /* nametable now handles the scroll */
+    width: 100%;
+    margin-top: 10px; 
+}
+
+/* Ensure tableaccept styles for stable font and scroll behavior */
+.tableaccept {
+    min-width: 900px; /* Forces the table to stretch wide enough to require scrolling */
+    width: 100%;
+}
+
+

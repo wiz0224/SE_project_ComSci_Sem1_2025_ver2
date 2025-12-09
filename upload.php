@@ -5,7 +5,7 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 if (isset($_POST['submit'])) {
     // Collect form data safely
     $lastname = $_POST['lastname'];
-    $firstname = $_POST['fullname'];
+    $firstname = $_POST['firstname'];
     $birthdate = $_POST['birthday'];
     $course_year = $_POST['course_year']; // corresponds to `c&y`
     $school = $_POST['school'];
