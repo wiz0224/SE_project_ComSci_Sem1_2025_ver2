@@ -6,34 +6,85 @@ if (!isset($_SESSION['firstName'])) {
 }
 include 'conn.php';
 
-// CRITICAL FIX: Kunin ang ID mula sa POST (galing sa accept.php list) o GET (kung galing sa URL)
-if (!isset($_POST['id']) && !isset($_GET['id'])) {
-    header("Location: accept.php"); 
-    exit();
+// Get ID from POST (preferred) or GET
+$id = 0;
+if (isset($_POST['id'])) {
+    $id = intval($_POST['id']);
+} elseif (isset($_GET['id'])) {
+    $id = intval($_GET['id']);
 }
-
-// Gamitin ang ID na nakuha sa POST (primary) o GET (backup)
-$id = intval($_POST['id'] ?? $_GET['id']);
-
-// Tiyakin na may valid ID
 if ($id <= 0) {
-    header("Location: accept.php?error=invalid_id"); 
+    header("Location: accept.php?error=invalid_id");
     exit();
 }
 
-// Fetch registration details
+// Fetch registration
 $stmt = $conn->prepare("SELECT * FROM pending_registrations WHERE id = ?");
+if (!$stmt) {
+    die("DB prepare failed: " . $conn->error);
+}
 $stmt->bind_param("i", $id);
 $stmt->execute();
 $result = $stmt->get_result();
-
 if ($result->num_rows === 0) {
-    echo "<div class='alert alert-danger'>No registration found for this ID.</div>";
+    $stmt->close();
+    header("Location: accept.php?error=not_found");
     exit();
 }
-
 $row = $result->fetch_assoc();
 $stmt->close();
+
+/**
+ * Resolve upload filename to server path and public URL.
+ * Accepts many DB variants: 'cor_file', 'cor_path', 'cor', 'uploads/...' etc.
+ */
+function resolveUpload($filename) {
+    if (empty($filename)) return [ 'server' => null, 'url' => null ];
+
+    $uploadsDir = __DIR__ . '/uploads/';
+    $candidates = [];
+
+    // If DB stored full path or starts with 'uploads/'
+    if (strpos($filename, 'uploads/') !== false) {
+        $candidates[] = __DIR__ . '/' . ltrim($filename, '/');
+    }
+
+    // basename inside uploads folder
+    $candidates[] = $uploadsDir . basename($filename);
+
+    // direct file in project root
+    $candidates[] = __DIR__ . '/' . basename($filename);
+
+    // check candidates for existence
+    foreach ($candidates as $path) {
+        if ($path && file_exists($path)) {
+            // build URL relative to web root (assume 'uploads/' is web-accessible)
+            $url = 'uploads/' . rawurlencode(basename($path));
+            return [ 'server' => $path, 'url' => $url ];
+        }
+    }
+
+    // fallback: still produce a reasonable URL for display if file might be present later
+    return [ 'server' => null, 'url' => (strpos($filename, 'http') === 0 ? $filename : 'uploads/' . rawurlencode(basename($filename))) ];
+}
+
+// Normalize DB column names (try multiple possible names)
+$cor_filename = $row['cor_file'] ?? $row['cor_path'] ?? $row['cor'] ?? $row['certificate'] ?? null;
+$school_id_filename = $row['school_id_file'] ?? $row['school_id'] ?? $row['id_file'] ?? $row['schoolid'] ?? null;
+
+$cor_res = resolveUpload($cor_filename);
+$id_res  = resolveUpload($school_id_filename);
+
+// Prepare display-safe values
+$display_name = htmlspecialchars(($row['firstname'] ?? '') . ' ' . ($row['lastname'] ?? ''));
+$display_last_first = htmlspecialchars(($row['lastname'] ?? '') . ', ' . ($row['firstname'] ?? ''));
+$display_course_year = htmlspecialchars($row['c&y'] ?? $row['course_year'] ?? '');
+$display_school = htmlspecialchars($row['school'] ?? '');
+$display_contact = htmlspecialchars($row['contact'] ?? '');
+$display_email = htmlspecialchars($row['email'] ?? '');
+$display_address = htmlspecialchars($row['address'] ?? '');
+$display_date = htmlspecialchars($row['date'] ?? $row['date_registered'] ?? '');
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -44,218 +95,131 @@ $stmt->close();
     <link rel="stylesheet" href="css/styles.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
-        /* CSS Variables for Light/Dark Mode (Consistent) */
-        :root {
-            --background-primary: #ffffff;
-            --background-secondary: #f8f9fa; /* Background ng Container */
-            --text-color-primary: #212529;
-            --text-color-secondary: #6c757d;
-            --border-color: #dee2e6;
-            --primary-color: #007bff;
-            --table-header-bg: #007bff;
-            --table-header-text: #ffffff;
-            --review-container-bg: #ffffff;
-        }
-        .dark-mode {
-            --background-primary: #121212;
-            --background-secondary: #1e1e1e;
-            --text-color-primary: #e0e0e0;
-            --text-color-secondary: #a0a0a0;
-            --border-color: #333333;
-            --primary-color: #79b8ff;
-            --table-header-bg: #333333;
-            --table-header-text: #ffffff;
-            --review-container-bg: #1e1e1e;
-        }
-
-        body {
-            background-color: var(--background-primary);
-            color: var(--text-color-primary);
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        /* Main container style */
-        .review-container {
-            max-width: 1200px;
-            margin: 50px auto;
-            padding: 30px;
-            background-color: var(--review-container-bg);
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            border: 1px solid var(--border-color);
-        }
-        .dark-mode .review-container {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        }
-
-        /* Info Table Styling */
-        .table {
-            color: var(--text-color-primary);
-            margin-bottom: 30px;
-        }
-        .table th {
-            width: 200px;
-            background-color: var(--background-secondary);
-            border-color: var(--border-color);
-            color: var(--text-color-primary);
-        }
-        .table td {
-            border-color: var(--border-color);
-            background-color: var(--review-container-bg);
-        }
-        .dark-mode .table th {
-            background-color: #252525;
-            color: var(--text-color-primary);
-        }
-
-        /* Document display styling */
-        .document-view-section {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-top: 30px;
-        }
-        .document-view-section > div {
-            flex: 1 1 45%;
-            min-width: 300px;
-            padding: 15px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            background-color: var(--background-secondary);
-        }
-        .dark-mode .document-view-section > div {
-            background-color: #252525;
-        }
-        .document-view-section h5 {
-            border-bottom: 2px solid var(--primary-color);
-            padding-bottom: 5px;
-            color: var(--primary-color);
-        }
-        img, iframe {
-            max-width: 100%;
-            height: auto;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-        }
-        .dark-mode img, .dark-mode iframe {
-            border-color: #555555;
-        }
-        
-        .action-buttons {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            margin-bottom: 20px;
-            text-decoration: none;
-            color: var(--text-color-secondary);
-            font-weight: 500;
-        }
-        .back-link:hover {
-            color: var(--primary-color);
-            text-decoration: underline;
-        }
-        .back-link i {
-            margin-right: 5px;
-        }
+        :root{ --primary:#007bff; }
+        body{font-family:Arial,Helvetica,sans-serif;background:#f8f9fa;color:#222;padding:20px;}
+        .review-container{max-width:1100px;margin:30px auto;background:#fff;padding:24px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.08);}
+        .back-link{display:inline-flex;align-items:center;margin-bottom:18px;color:#6c757d;text-decoration:none}
+        .document-view-section{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;margin-top:20px}
+        .document-view-section > div{flex:1 1 45%;min-width:280px;padding:15px;border:1px solid #e9ecef;border-radius:8px;background:#fafafa}
+        img,iframe{max-width:100%;height:auto;border:1px solid #e9ecef;border-radius:4px}
+        .action-buttons{text-align:center;margin-top:18px;display:flex;gap:12px;justify-content:center}
+        .btn-lg{padding:10px 18px;font-size:16px}
+        .file-link {display:inline-block;margin-top:8px;}
     </style>
 </head>
 <body>
     <div class="review-container">
-        <a href="accept.php" class="back-link">
-            <i class='bx bx-arrow-back'></i> Back to Pending List
-        </a>
+        <a href="accept.php" class="back-link"><i class='bx bx-arrow-back'></i> Back to Pending List</a>
 
-        <h3 class="mb-4 text-center">Reviewing Registration for: <?= htmlspecialchars($row['firstname'] . ' ' . $row['lastname']) ?></h3>
-        
+        <h3 style="text-align:center;margin-bottom:10px">Reviewing Registration for: <?= $display_name ?></h3>
+
         <table class="table table-bordered">
             <tbody>
                 <tr>
-                    <th scope="row">Name:</th>
-                    <td><?= htmlspecialchars($row['lastname'] . ', ' . $row['firstname']) ?></td>
-                    <th scope="row">Contact #:</th>
-                    <td><?= htmlspecialchars($row['contact']) ?></td>
+                    <th style="width:200px">Name:</th>
+                    <td><?= $display_last_first ?></td>
+                    <th style="width:200px">Contact #:</th>
+                    <td><?= $display_contact ?></td>
                 </tr>
                 <tr>
-                    <th scope="row">Course & Year:</th>
-                    <td><?= htmlspecialchars($row['c&y']) ?></td>
-                    <th scope="row">Email:</th>
-                    <td><?= htmlspecialchars($row['email']) ?></td>
+                    <th>Course & Year:</th>
+                    <td><?= $display_course_year ?></td>
+                    <th>Email:</th>
+                    <td><?= $display_email ?></td>
                 </tr>
                 <tr>
-                    <th scope="row">School:</th>
-                    <td><?= htmlspecialchars($row['school']) ?></td>
-                    <th scope="row">Address:</th>
-                    <td><?= htmlspecialchars($row['address']) ?></td>
+                    <th>School:</th>
+                    <td><?= $display_school ?></td>
+                    <th>Address:</th>
+                    <td><?= $display_address ?></td>
                 </tr>
                 <tr>
-                    <th scope="row">Date Submitted:</th>
-                    <td colspan="3"><?= htmlspecialchars($row['date']) ?></td>
+                    <th>Date Submitted:</th>
+                    <td colspan="3"><?= $display_date ?></td>
                 </tr>
             </tbody>
         </table>
 
-        <hr>
-
-        <h4 class="mb-3 text-center" style="color: var(--primary-color);">Uploaded Documents</h4>
-        
+        <h4 style="text-align:center;color:var(--primary);margin-top:10px">Uploaded Documents</h4>
         <div class="document-view-section">
-            
             <div>
                 <h5>Certificate of Registration (COR):</h5>
-                <?php
-                $cor_path = $row['cor_path'];
-                if ($cor_path && file_exists($cor_path)) {
-                    if (preg_match('/\\.pdf$/i', $cor_path)) {
-                        echo "<iframe src='$cor_path' width='100%' height='400' title='COR Document'></iframe>";
-                    } else {
-                        echo "<img src='$cor_path' alt='COR Image'>";
-                    }
-                } else {
-                    echo "<p class='text-danger'>No COR uploaded or file missing.</p>";
-                }
-                ?>
+                <?php if ($cor_res['server'] && file_exists($cor_res['server'])): ?>
+                    <?php if (preg_match('/\.pdf$/i', $cor_res['server'])): ?>
+                        <iframe src="<?= htmlspecialchars($cor_res['url']) ?>" width="100%" height="420" title="COR Document"></iframe>
+                    <?php else: ?>
+                        <img src="<?= htmlspecialchars($cor_res['url']) ?>" alt="COR Image">
+                    <?php endif; ?>
+                    <div class="file-link"><a href="<?= htmlspecialchars($cor_res['url']) ?>" download>Download COR</a></div>
+                <?php elseif ($cor_res['url']): ?>
+                    <!-- file not found on server, but show link if URL available -->
+                    <p class="text-warning">File not found on server. You can try to open the link below:</p>
+                    <div class="file-link"><a href="<?= htmlspecialchars($cor_res['url']) ?>" target="_blank" rel="noopener">Open COR</a></div>
+                <?php else: ?>
+                    <p class="text-danger">No COR uploaded.</p>
+                <?php endif; ?>
             </div>
 
             <div>
                 <h5>School ID:</h5>
-                <?php
-                $school_id = $row['school_id'];
-                if ($school_id && file_exists($school_id)) {
-                    if (preg_match('/\\.pdf$/i', $school_id)) {
-                        echo "<iframe src='$school_id' width='100%' height='400' title='School ID Document'></iframe>";
-                    } else {
-                        echo "<img src='$school_id' alt='School ID Image'>";
-                    }
-                } else {
-                    echo "<p class='text-danger'>No School ID uploaded or file missing.</p>";
-                }
-                ?>
+                <?php if ($id_res['server'] && file_exists($id_res['server'])): ?>
+                    <?php if (preg_match('/\.pdf$/i', $id_res['server'])): ?>
+                        <iframe src="<?= htmlspecialchars($id_res['url']) ?>" width="100%" height="420" title="School ID Document"></iframe>
+                    <?php else: ?>
+                        <img src="<?= htmlspecialchars($id_res['url']) ?>" alt="School ID Image">
+                    <?php endif; ?>
+                    <div class="file-link"><a href="<?= htmlspecialchars($id_res['url']) ?>" download>Download School ID</a></div>
+                <?php elseif ($id_res['url']): ?>
+                    <p class="text-warning">File not found on server. You can try to open the link below:</p>
+                    <div class="file-link"><a href="<?= htmlspecialchars($id_res['url']) ?>" target="_blank" rel="noopener">Open School ID</a></div>
+                <?php else: ?>
+                    <p class="text-danger">No School ID uploaded.</p>
+                <?php endif; ?>
             </div>
         </div>
 
-        <hr>
-
         <div class="action-buttons">
-            <form action="accept_action.php" method="POST" style="display:inline;">
-                <input type="hidden" name="id" value="<?= $row['id'] ?>">
+            <form id="acceptForm" action="accept_action.php" method="POST" style="display:inline;">
+                <input type="hidden" name="id" value="<?= intval($row['id']) ?>">
                 <button type="submit" class="btn btn-success btn-lg"><i class='bx bx-check-circle'></i> Accept</button>
             </form>
 
-            <form action="reject.php" method="POST" style="display:inline;">
-                <input type="hidden" name="id" value="<?= $row['id'] ?>">
+            <form id="rejectForm" action="reject.php" method="POST" style="display:inline;">
+                <input type="hidden" name="id" value="<?= intval($row['id']) ?>">
                 <button type="submit" class="btn btn-danger btn-lg"><i class='bx bx-x-circle'></i> Reject</button>
             </form>
         </div>
     </div>
 
-    <script>
-        if (localStorage.getItem('darkMode') === 'true') {
-            document.body.classList.add('dark-mode');
-        }
-    </script>
+<script>
+    // apply dark mode if set
+    if (localStorage.getItem('darkMode') === 'true') {
+        document.body.classList.add('dark-mode');
+    }
+
+    // Confirm before accepting. If canceled, do NOT submit (keeps entry in pending list).
+    (function(){
+        var acceptForm = document.getElementById('acceptForm');
+        var fullName = <?= json_encode($display_name) ?>;
+        acceptForm.addEventListener('submit', function(e){
+            var ok = confirm('Are you sure you want to ACCEPT and add ' + fullName + ' to the list of assistance recipients?');
+            if (!ok) {
+                e.preventDefault();
+                return;
+            }
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'confirmed';
+            input.value = 'true';
+            acceptForm.appendChild(input);
+        });
+
+        var rejectForm = document.getElementById('rejectForm');
+        rejectForm.addEventListener('submit', function(e){
+            var ok = confirm('Are you sure you want to REJECT ' + fullName + '? This will remove the pending registration.');
+            if (!ok) e.preventDefault();
+        });
+    })();
+</script>
 </body>
 </html>

@@ -42,6 +42,7 @@ body.dark-mode {
   --box-shadow: 2px 0 52px rgba(255, 255, 255, 0.122);
 }
 
+
 body {
   background-size: cover;
   color: var(--text-color);

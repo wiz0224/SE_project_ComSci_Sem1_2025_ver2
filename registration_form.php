@@ -2,7 +2,6 @@
 <html lang="en">
     
 <head>
-   <?php include 'conn.php'; ?>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Registration Form</title>
@@ -19,7 +18,7 @@
     </div>
     <div>
       <label for="firstname">First Name:</label>
-      <input type="text" name="fullname" id="fullname" required>
+      <input type="text" name="firstname" id="firstname" required>
     </div>
     <div>
       <label for="course_year">Course & Year:</label>
