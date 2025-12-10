@@ -8,7 +8,7 @@ if (!isset($_SESSION['firstName'])) {
 include 'conn.php'; 
 
 // Define the 6-month cut-off date for renewal eligibility
-$six_months_ago = date('Y-m-d', strtotime('-6 months')); 
+$six_months_ago = date('Y-m-d', strtotime(datetime: '-6 months')); 
 
 // Fetch pending registrations
 $sql = "SELECT * FROM pending_registrations ORDER BY date DESC";
@@ -52,7 +52,7 @@ $result = $conn->query($sql);
         }
 
         .main-container {
-            max-width: 1200px;
+            width: 80%;
             margin: 20px auto;
             padding: 20px;
             background: var(--background-primary); 
