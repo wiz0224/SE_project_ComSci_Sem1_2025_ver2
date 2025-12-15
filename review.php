@@ -95,16 +95,73 @@ $display_date = htmlspecialchars($row['date'] ?? $row['date_registered'] ?? '');
     <link rel="stylesheet" href="css/styles.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
-        :root{ --primary:#007bff; }
-        body{font-family:Arial,Helvetica,sans-serif;background:#f8f9fa;color:#222;padding:20px;}
-        .review-container{max-width:1100px;margin:30px auto;background:#fff;padding:24px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.08);}
-        .back-link{display:inline-flex;align-items:center;margin-bottom:18px;color:#6c757d;text-decoration:none}
+        :root {
+            --primary: #007bff;
+            --background-primary: #ffffff;
+            --background-secondary: #f8f9fa;
+            --text-color-primary: #222;
+            --text-color-secondary: #6c757d;
+            --border-color: #e9ecef;
+            --card-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .dark-mode {
+            --background-primary: #1e1e1e;
+            --background-secondary: #121212;
+            --text-color-primary: #e0e0e0;
+            --text-color-secondary: #a0a0a0;
+            --border-color: #3a3a3a;
+            --primary: #79b8ff;
+            --card-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        body {
+            font-family: Arial,Helvetica,sans-serif;
+            background: var(--background-secondary);
+            color: var(--text-color-primary);
+            padding: 20px;
+            transition: background-color .3s, color .3s;
+        }
+
+        .review-container{
+            max-width:1100px;
+            margin:30px auto;
+            background:var(--background-primary);
+            padding:24px;
+            border-radius:8px;
+            box-shadow:var(--card-shadow);
+            border:1px solid var(--border-color);
+        }
+
+        .back-link{display:inline-flex;align-items:center;margin-bottom:18px;color:var(--text-color-secondary);text-decoration:none}
         .document-view-section{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;margin-top:20px}
-        .document-view-section > div{flex:1 1 45%;min-width:280px;padding:15px;border:1px solid #e9ecef;border-radius:8px;background:#fafafa}
-        img,iframe{max-width:100%;height:auto;border:1px solid #e9ecef;border-radius:4px}
+        .document-view-section > div{flex:1 1 45%;min-width:280px;padding:15px;border:1px solid var(--border-color);border-radius:8px;background:var(--background-primary)}
+        img,iframe{max-width:100%;height:auto;border:1px solid var(--border-color);border-radius:4px;background:transparent}
+        /* Tables & text
+         * Override Bootstrap table defaults so they don't show bright white
+         * when dark-mode is active. Keep transparent backgrounds and use
+         * our color variables for text and borders.
+         */
+        .table { background: transparent; }
+        .table th, .table td { background: transparent; color: var(--text-color-primary); border-color: var(--border-color) }
+        .table thead th { color: var(--text-color-secondary) }
+        .table tbody tr { background: transparent }
+
+        /* Adjust inline status text colors for dark mode readability */
+        .text-warning { color: #856404 }
+        .text-danger { color: #8a1f1f }
+
+        /* File link styling */
+        .file-link a { color: var(--primary); }
+
+        /* Buttons - reduce harsh borders in dark mode */
+        .btn { border-radius: 6px }
+        .btn:focus { box-shadow: none }
         .action-buttons{text-align:center;margin-top:18px;display:flex;gap:12px;justify-content:center}
         .btn-lg{padding:10px 18px;font-size:16px}
-        .file-link {display:inline-block;margin-top:8px;}
+        .file-link {display:inline-block;margin-top:8px;color:var(--primary);}
+        h3 { color: var(--primary); }
+        h4 { color: var(--primary); }
     </style>
 </head>
 <body>
