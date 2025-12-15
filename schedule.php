@@ -9,6 +9,70 @@ if (!isset($_SESSION['firstName'])) {
 $message = '';
 $message_type = ''; // success, danger, info
 
+// Retrieve flash message from session if set
+if (session_status() === PHP_SESSION_NONE) session_start();
+if (isset($_SESSION['message'])) {
+    $message = $_SESSION['message'];
+    $message_type = $_SESSION['message_type'] ?? 'info';
+    unset($_SESSION['message'], $_SESSION['message_type']);
+}
+
+// --- Helpers and column detection ---
+function columnExists($conn, $table, $column) {
+    $table = $conn->real_escape_string($table);
+    $column = $conn->real_escape_string($column);
+    $res = $conn->query("SHOW COLUMNS FROM `{$table}` LIKE '{$column}'");
+    return ($res && $res->num_rows > 0);
+}
+
+function getField($arr, $keys, $default = '') {
+    if (!is_array($arr)) return $default;
+
+    // Direct match first (exact keys)
+    foreach ($keys as $k) {
+        if (array_key_exists($k, $arr) && $arr[$k] !== null && $arr[$k] !== '') return $arr[$k];
+    }
+
+    // Case-insensitive match
+    $lower = array_change_key_case($arr, CASE_LOWER);
+    foreach ($keys as $k) {
+        $lk = strtolower($k);
+        if (array_key_exists($lk, $lower) && $lower[$lk] !== null && $lower[$lk] !== '') return $lower[$lk];
+    }
+
+    // Fallbacks: common combined name fields
+    foreach (['name','full_name','fullname'] as $k) {
+        if (array_key_exists($k, $arr) && $arr[$k]) return $arr[$k];
+        $lk = strtolower($k);
+        if (array_key_exists($lk, $lower) && $lower[$lk]) return $lower[$lk];
+    }
+
+    return $default;
+}
+
+// detect name column to order by
+$preferred_name_cols = ['lastname','last_name','lname','surname'];
+$preferred_first_cols = ['firstname','first_name','fname','firstName'];
+$order_name_col = null;
+foreach ($preferred_name_cols as $c) {
+    if (columnExists($conn, 'receivers', $c)) { $order_name_col = $c; break; }
+}
+if (!$order_name_col) {
+    foreach ($preferred_first_cols as $c) {
+        if (columnExists($conn, 'receivers', $c)) { $order_name_col = $c; break; }
+    }
+}
+if (!$order_name_col) { $order_name_col = 'ID'; } // fallback
+
+// detect schedule and delivered date columns
+$schedule_candidates = ['date_scheduled','schedule_date','scheduled_date'];
+$schedule_col = null;
+foreach ($schedule_candidates as $c) { if (columnExists($conn, 'receivers', $c)) { $schedule_col = $c; break; } }
+
+$delivered_candidates = ['date_delivered','date_paid','delivered_date','date_delivered_on','date_delivered_at','date'];
+$delivered_col = null;
+foreach ($delivered_candidates as $c) { if (columnExists($conn, 'receivers', $c)) { $delivered_col = $c; break; } }
+
 // --- Handle Form Submissions ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $receiver_id = isset($_POST['receiver_id']) ? intval($_POST['receiver_id']) : 0;
@@ -18,57 +82,117 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($action === 'schedule') {
             $schedule_date = $_POST['schedule_date'] ?? null;
             
-            if ($schedule_date && strtotime($schedule_date) !== false) {
-                // 1. Update receivers table: Set the date_scheduled
-                $update_receiver = $conn->prepare("UPDATE receivers SET date_scheduled = ? WHERE ID = ? AND status = 0");
-                $update_receiver->bind_param("si", $schedule_date, $receiver_id);
-                
-                if ($update_receiver->execute()) {
-                    // 2. Ensure event exists in schedule_events (UPSERT logic: insert if not exists)
-                    $upsert_event = $conn->prepare("INSERT INTO schedule_events (schedule_date) VALUES (?) ON DUPLICATE KEY UPDATE schedule_date=schedule_date");
-                    $upsert_event->bind_param("s", $schedule_date);
-                    $upsert_event->execute();
-                    
-                    $message = "Recipient successfully scheduled for payout on " . date('F d, Y', strtotime($schedule_date)) . ".";
-                    $message_type = 'success';
-                } else {
-                    $message = "Error scheduling recipient: " . $conn->error;
+            if (!$schedule_col) {
+                $message = "Scheduling is not enabled for this installation (no schedule column).";
+                $message_type = 'danger';
+            } elseif ($schedule_date && strtotime($schedule_date) !== false) {
+                // Build WHERE clause optionally including status if the column exists
+                $where_clause = "WHERE ID = ?";
+                if (columnExists($conn, 'receivers', 'status')) {
+                    $where_clause .= " AND status = 0";
+                }
+                $sql_update = "UPDATE receivers SET `{$schedule_col}` = ? " . $where_clause;
+                $update_receiver = $conn->prepare($sql_update);
+                if (!$update_receiver) {
+                    $message = "Prepare failed for scheduling: " . $conn->error;
                     $message_type = 'danger';
+                } else {
+                    $update_receiver->bind_param("si", $schedule_date, $receiver_id);
+                    if ($update_receiver->execute()) {
+                        if ($update_receiver->affected_rows > 0) {
+                            // Ensure event exists in schedule_events (UPSERT logic)
+                            $upsert_event = $conn->prepare("INSERT INTO schedule_events (schedule_date) VALUES (?) ON DUPLICATE KEY UPDATE schedule_date=schedule_date");
+                            if ($upsert_event) {
+                                $upsert_event->bind_param("s", $schedule_date);
+                                $upsert_event->execute();
+                            }
+
+                            $message = "Recipient successfully scheduled for payout on " . date('F d, Y', strtotime($schedule_date)) . ".";
+                            $message_type = 'success';
+                        } else {
+                            $message = "No changes made: recipient may already be scheduled or not in pending status.";
+                            $message_type = 'info';
+                        }
+                    } else {
+                        $message = "Execute failed for scheduling: " . $update_receiver->error;
+                        $message_type = 'danger';
+                    }
                 }
             } else {
                 $message = "Invalid schedule date.";
                 $message_type = 'danger';
             }
         } elseif ($action === 'deliver') {
-            // Mark as Delivered (status = 1), record current date in date_delivered, and clear date_scheduled
             $deliver_date = date('Y-m-d');
-            $update_delivery = $conn->prepare("UPDATE receivers SET status = 1, date_delivered = ?, date_scheduled = NULL WHERE ID = ?");
-            $update_delivery->bind_param("si", $deliver_date, $receiver_id);
+
+            // If there's no delivered date column, try to add one so we can store the date
+            if (!$delivered_col) {
+                $alter_sql = "ALTER TABLE receivers ADD COLUMN date_delivered DATE DEFAULT NULL";
+                try {
+                    $conn->query($alter_sql);
+                    // If successful, set the local variable so we can use it immediately
+                    $delivered_col = 'date_delivered';
+                } catch (Exception $e) {
+                    // ignore failure; we'll still set status without a date
+                    $delivered_col = null;
+                }
+            }
+
+            if ($delivered_col && $schedule_col) {
+                $update_delivery = $conn->prepare("UPDATE receivers SET status = 1, `{$delivered_col}` = ?, `{$schedule_col}` = NULL WHERE ID = ?");
+                $update_delivery->bind_param("si", $deliver_date, $receiver_id);
+            } elseif ($delivered_col) {
+                $update_delivery = $conn->prepare("UPDATE receivers SET status = 1, `{$delivered_col}` = ? WHERE ID = ?");
+                $update_delivery->bind_param("si", $deliver_date, $receiver_id);
+            } else {
+                // no delivered date column: just set status
+                $update_delivery = $conn->prepare("UPDATE receivers SET status = 1 WHERE ID = ?");
+                $update_delivery->bind_param("i", $receiver_id);
+            }
             
             if ($update_delivery->execute()) {
-                $message = "Assistance marked as **DELIVERED** on " . date('F d, Y') . ".";
+                if ($delivered_col) {
+                    $message = "Assistance marked as DELIVERED on " . date('F d, Y', strtotime($deliver_date)) . ".";
+                } else {
+                    $message = "Assistance marked as DELIVERED (date not tracked).";
+                }
                 $message_type = 'success';
             } else {
                 $message = "Error marking as delivered: " . $conn->error;
                 $message_type = 'danger';
             }
         } elseif ($action === 'reschedule_remove') {
-            // Reschedule (Remove from schedule)
-            // Sets date_scheduled back to NULL, putting them back on the 'Pending Schedule' list.
-            $update_reschedule = $conn->prepare("UPDATE receivers SET date_scheduled = NULL WHERE ID = ? AND status = 0");
-            $update_reschedule->bind_param("i", $receiver_id);
-
-            if ($update_reschedule->execute()) {
-                $message = "Recipient unscheduled. Now on the **Pending Schedule** list for rescheduling.";
-                $message_type = 'info';
-            } else {
-                $message = "Error rescheduling: " . $conn->error;
+            if (!$schedule_col) {
+                $message = "Unschedule operation not available (no schedule column).";
                 $message_type = 'danger';
+            } else {
+                $where_clause = "WHERE ID = ?";
+                if (columnExists($conn, 'receivers', 'status')) {
+                    $where_clause .= " AND status = 0";
+                }
+                $update_reschedule = $conn->prepare("UPDATE receivers SET `{$schedule_col}` = NULL " . $where_clause);
+                $update_reschedule->bind_param("i", $receiver_id);
+
+                if ($update_reschedule->execute()) {
+                    if ($update_reschedule->affected_rows > 0) {
+                        $message = "Recipient unscheduled. Now on the **Pending Schedule** list for rescheduling.";
+                        $message_type = 'info';
+                    } else {
+                        $message = "No changes made while trying to unschedule. Recipient may already be unscheduled or not in pending status.";
+                        $message_type = 'info';
+                    }
+                } else {
+                    $message = "Error rescheduling: " . $update_reschedule->error;
+                    $message_type = 'danger';
+                }
             }
         }
         
         // To prevent double submission on refresh, redirect to the 'id' view after form processing
-        header("Location: schedule.php?view=id&id=" . $receiver_id . "&msg=" . urlencode($message) . "&type=" . urlencode($message_type));
+        if (session_status() === PHP_SESSION_NONE) session_start();
+        $_SESSION['message'] = $message;
+        $_SESSION['message_type'] = $message_type;
+        header("Location: schedule.php?view=id&id=" . $receiver_id);
         exit();
     }
 }
@@ -100,17 +224,42 @@ if ($view_mode === 'id' && isset($_GET['id'])) {
 // SQL for List Views
 $list_sql = '';
 $list_title = 'Payout Management';
+
+// Build list queries using detected columns
 if ($view_mode === 'pending') {
-    $list_sql = "SELECT * FROM receivers WHERE date_scheduled IS NULL AND status = 0 ORDER BY lastname ASC";
-    $list_title = "List of Recipients Pending Schedule (Reschedule)";
+    if ($schedule_col) {
+        $list_sql = "SELECT * FROM receivers WHERE `{$schedule_col}` IS NULL AND status = 0 ORDER BY `{$order_name_col}` ASC";
+        $list_title = "List of Recipients Pending Schedule (Reschedule)";
+    } else {
+        $list_sql = "SELECT * FROM receivers WHERE status = 0 ORDER BY `{$order_name_col}` ASC";
+        $list_title = "List of Recipients Pending Schedule (scheduling not tracked)";
+    }
 } elseif ($view_mode === 'scheduled') {
-    $list_sql = "SELECT * FROM receivers WHERE date_scheduled IS NOT NULL AND status = 0 ORDER BY date_scheduled ASC, lastname ASC";
-    $list_title = "List of Recipients Scheduled for Payout";
+    if ($schedule_col) {
+        $list_sql = "SELECT * FROM receivers WHERE `{$schedule_col}` IS NOT NULL AND status = 0 ORDER BY `{$schedule_col}` ASC, `{$order_name_col}` ASC";
+        $list_title = "List of Recipients Scheduled for Payout";
+    } else {
+        $list_sql = "SELECT * FROM receivers WHERE status = 0 ORDER BY `{$order_name_col}` ASC";
+        $list_title = "List of Recipients Scheduled for Payout (scheduling not available)";
+    }
 } elseif ($view_mode === 'delivered') {
-    $list_sql = "SELECT * FROM receivers WHERE status = 1 ORDER BY date_delivered DESC, lastname ASC";
-    $list_title = "List of Recipients Paid Out (Delivered)";
+    if ($delivered_col) {
+        $list_sql = "SELECT * FROM receivers WHERE status = 1 ORDER BY `{$delivered_col}` DESC, `{$order_name_col}` ASC";
+    } else {
+        $list_sql = "SELECT * FROM receivers WHERE status = 1 ORDER BY `{$order_name_col}` ASC";
+    }
 }
-$list_result = $list_sql ? $conn->query($list_sql) : null;
+$list_result = null;
+if ($list_sql) {
+    $res = $conn->query($list_sql);
+    if ($res === false) {
+        $message = "Failed to run list query: " . $conn->error;
+        $message_type = 'danger';
+        $list_result = null;
+    } else {
+        $list_result = $res;
+    }
+}
 
 ?>
 <!DOCTYPE html>
@@ -244,21 +393,34 @@ $list_result = $list_sql ? $conn->query($list_sql) : null;
         <?php endif; ?>
 
         <?php if ($receiver_data): // Individual Update View (from Dashboard) ?>
+            <?php
+                $display_first = htmlspecialchars(getField($receiver_data, ['firstname','first_name','fname','firstName']));
+                $display_last = htmlspecialchars(getField($receiver_data, ['lastname','last_name','lname','surname','lastName','LastName']));
+                $display_name = trim($display_first . ' ' . $display_last);
+                $display_id = htmlspecialchars($receiver_data['ID'] ?? $receiver_data['id'] ?? '');
+                $status_val = $receiver_data['status'] ?? null;
+                $schedule_val = $schedule_col ? ($receiver_data[$schedule_col] ?? null) : null;
+                $delivered_val = $delivered_col ? ($receiver_data[$delivered_col] ?? null) : null;
+            ?>
             <div class="schedule-form-card">
-                <h3>Update Recipient: <?php echo htmlspecialchars($receiver_data['firstname'] . ' ' . $receiver_data['lastname']); ?> (ID: <?php echo $receiver_data['ID']; ?>)</h3>
+                <h3>Update Recipient: <?php echo $display_name; ?> (ID: <?php echo $display_id; ?>)</h3>
                 <p>Status: <strong>
-                    <?php 
-                    if ($receiver_data['status'] == 1) {
-                        echo "DELIVERED on " . date('F d, Y', strtotime($receiver_data['date_delivered']));
-                    } elseif ($receiver_data['date_scheduled']) {
-                        echo "SCHEDULED for " . date('F d, Y', strtotime($receiver_data['date_scheduled']));
+                    <?php
+                    if ($status_val == 1) {
+                        if ($delivered_val) {
+                            echo "DELIVERED on " . date('F d, Y', strtotime($delivered_val));
+                        } else {
+                            echo "DELIVERED"; // delivered but no date column available
+                        }
+                    } elseif ($schedule_val) {
+                        echo "SCHEDULED for " . date('F d, Y', strtotime($schedule_val));
                     } else {
                         echo "PENDING SCHEDULE";
                     }
                     ?>
                 </strong></p>
 
-                <?php if ($receiver_data['status'] == 0): // If not yet delivered ?>
+                <?php if ($status_val == 0): // If not yet delivered ?>
                     <hr>
                     
                     <form method="POST" style="display:inline-block; margin-right: 15px;">
@@ -271,20 +433,20 @@ $list_result = $list_sql ? $conn->query($list_sql) : null;
                         <input type="hidden" name="receiver_id" value="<?php echo $receiver_data['ID']; ?>">
                         <input type="hidden" name="action" value="schedule">
                         <label for="schedule_date">Schedule Payout:</label>
-                        <input type="date" name="schedule_date" required value="<?php echo $receiver_data['date_scheduled'] ?? ''; ?>" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
+                        <input type="date" name="schedule_date" required value="<?php echo htmlspecialchars($schedule_val ?? ''); ?>" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
                         <button type="submit" class="btn btn-info">Set Schedule Date</button>
                     </form>
 
-                    <?php if ($receiver_data['date_scheduled']): ?>
+                    <?php if ($schedule_val): ?>
                         <form method="POST" style="display:inline-block;">
-                            <input type="hidden" name="receiver_id" value="<?php echo $receiver_data['ID']; ?>">
+                            <input type="hidden" name="receiver_id" value="<?php echo $display_id; ?>">
                             <input type="hidden" name="action" value="reschedule_remove">
                             <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure you want to UNSCHEDULE this recipient? They will appear in the Pending list for manual rescheduling.');">Unschedule (Reschedule)</button>
                         </form>
                     <?php endif; ?>
 
                 <?php else: ?>
-                    <div class="alert alert-success">This assistance was delivered on <?php echo date('F d, Y', strtotime($receiver_data['date_delivered'])); ?>.</div>
+                    <div class="alert alert-success">This assistance was delivered on <?php echo htmlspecialchars($delivered_val ? date('F d, Y', strtotime($delivered_val)) : 'N/A'); ?>.</div>
                 <?php endif; ?>
             </div>
             
@@ -321,23 +483,33 @@ $list_result = $list_sql ? $conn->query($list_sql) : null;
                         </thead>
                         <tbody>
                         <?php while ($row = $list_result->fetch_assoc()): ?>
+                            <?php
+                                $row_id_raw = $row['ID'] ?? $row['id'] ?? '';
+                                $row_id = htmlspecialchars($row_id_raw);
+                                $row_last = htmlspecialchars(getField($row, ['lastname','last_name','lname','surname','lastName','LastName']));
+                                $row_first = htmlspecialchars(getField($row, ['firstname','first_name','fname','firstName','FirstName']));
+                                $row_cy = htmlspecialchars(getField($row, ['c&y','course_year','c_y','courseyear','cy','course']));
+                                $row_email = htmlspecialchars($row['email'] ?? '');
+                                $row_schedule = $schedule_col ? ($row[$schedule_col] ?? null) : null;
+                                $row_delivered = $delivered_col ? ($row[$delivered_col] ?? null) : null;
+                            ?>
                             <tr>
-                                <td><?= htmlspecialchars($row['ID']) ?></td>
-                                <td><?= htmlspecialchars($row['lastname']) ?></td>
-                                <td><?= htmlspecialchars($row['firstname']) ?></td>
-                                <td><?= htmlspecialchars($row['c&y']) ?></td>
-                                <td class="email-cell"><?= htmlspecialchars($row['email']) ?></td>
+                                <td><?= $row_id ?></td>
+                                <td><?= $row_last ?></td>
+                                <td><?= $row_first ?></td>
+                                <td><?= $row_cy ?></td>
+                                <td class="email-cell"><?= $row_email ?></td>
                                 <td>
                                     <?php if ($view_mode === 'pending'): ?>
                                         <span class="status-pending">Pending Schedule</span>
                                     <?php elseif ($view_mode === 'scheduled'): ?>
-                                        <?= date('M d, Y', strtotime(htmlspecialchars($row['date_scheduled']))) ?>
+                                        <?= $row_schedule ? date('M d, Y', strtotime($row_schedule)) : '-' ?>
                                     <?php elseif ($view_mode === 'delivered'): ?>
-                                        <?= date('M d, Y', strtotime(htmlspecialchars($row['date_delivered']))) ?>
+                                        <?= $row_delivered ? date('M d, Y', strtotime($row_delivered)) : '<span class="status-pending">Delivered</span>' ?>
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <a href="schedule.php?view=id&id=<?= $row['ID'] ?>" class="btn btn-primary btn-sm">Manage</a>
+                                    <a href="schedule.php?view=id&id=<?= urlencode($row_id_raw) ?>" class="btn btn-primary btn-sm">Manage</a>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
