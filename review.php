@@ -78,7 +78,7 @@ $id_res  = resolveUpload($school_id_filename);
 // Prepare display-safe values
 $display_name = htmlspecialchars(($row['firstname'] ?? '') . ' ' . ($row['lastname'] ?? ''));
 $display_last_first = htmlspecialchars(($row['lastname'] ?? '') . ', ' . ($row['firstname'] ?? ''));
-$display_course_year = htmlspecialchars($row['c&y'] ?? $row['course_year'] ?? '');
+$display_course_year = htmlspecialchars($row['candy'] ?? $row['course_year'] ?? '');
 $display_school = htmlspecialchars($row['school'] ?? '');
 $display_contact = htmlspecialchars($row['contact'] ?? '');
 $display_email = htmlspecialchars($row['email'] ?? '');

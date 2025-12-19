@@ -163,7 +163,7 @@ $result = $conn->query($sql);
                             <td><?= htmlspecialchars($row['id']) ?></td>
                             <td><?= htmlspecialchars($row['lastname']) ?></td>
                             <td><?= htmlspecialchars($row['firstname']) ?></td>
-                            <td><?= htmlspecialchars($row['c&y']) ?></td>
+                            <td><?= htmlspecialchars($row['candy']) ?></td>
                             <td><?= date('M d, Y', strtotime($row['date'])) ?></td>
                             <td>
                                 <?php if (!$is_eligible_for_renewal): ?>

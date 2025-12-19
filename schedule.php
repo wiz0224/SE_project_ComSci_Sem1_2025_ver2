@@ -488,7 +488,7 @@ if ($list_sql) {
                                 $row_id = htmlspecialchars($row_id_raw);
                                 $row_last = htmlspecialchars(getField($row, ['lastname','last_name','lname','surname','lastName','LastName']));
                                 $row_first = htmlspecialchars(getField($row, ['firstname','first_name','fname','firstName','FirstName']));
-                                $row_cy = htmlspecialchars(getField($row, ['c&y','course_year','c_y','courseyear','cy','course']));
+                                $row_cy = htmlspecialchars(getField($row, ['candy','course_year','c_y','courseyear','cy','course']));
                                 $row_email = htmlspecialchars($row['email'] ?? '');
                                 $row_schedule = $schedule_col ? ($row[$schedule_col] ?? null) : null;
                                 $row_delivered = $delivered_col ? ($row[$delivered_col] ?? null) : null;

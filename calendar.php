@@ -48,7 +48,7 @@ if ($selected_date && strtotime($selected_date) !== false) {
     $safe_date = $conn->real_escape_string($selected_date);
     
     if (preg_match("/^\d{4}-\d{2}-\d{2}$/", $safe_date)) {
-        $stmt = $conn->prepare("SELECT ID, firstname, lastname, email, contact, `c&y` FROM receivers WHERE date_scheduled = ? AND status = 0 ORDER BY lastname ASC");
+        $stmt = $conn->prepare("SELECT ID, firstname, lastname, email, contact, `candy` FROM receivers WHERE date_scheduled = ? AND status = 0 ORDER BY lastname ASC");
         $stmt->bind_param("s", $safe_date);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -415,7 +415,7 @@ $next_month = $current_month == 12 ? 1 : $current_month + 1;
                             <?php foreach ($recipients_for_date as $r): ?>
                                 <tr>
                                     <td><?php echo htmlspecialchars($r['lastname'] . ', ' . $r['firstname']); ?></td>
-                                    <td><?php echo htmlspecialchars($r['c&y']); ?></td>
+                                    <td><?php echo htmlspecialchars($r['candy']); ?></td>
                                     <td><a href="schedule.php?view=id&id=<?= $r['ID'] ?>" class="btn btn-primary btn-sm">Manage</a></td>
                                 </tr>
                             <?php endforeach; ?>

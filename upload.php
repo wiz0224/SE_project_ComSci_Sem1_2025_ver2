@@ -57,7 +57,7 @@ if (isset($_POST['submit'])) {
     $hasIdCol  = columnExists($conn, 'pending_registrations', 'school_id_file');
 
     // Columns to insert
-    $cols = ['lastname','firstname','birthdate','`c&y`','school','contact','email','date','flagged','address'];
+    $cols = ['lastname','firstname','birthdate','`candy`','school','contact','email','date','flagged','address'];
     $params = [$lastname, $firstname, $birthdate, $course_year, $school, $contact, $email, $date_now, $flagged, $address];
     $placeholders = array_fill(0, count($cols), '?');
 

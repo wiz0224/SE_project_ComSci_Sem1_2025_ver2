@@ -44,7 +44,7 @@ if (isset($_POST['confirmed']) && $_POST['confirmed'] === 'true') {
 
             $lastname_cols = ['lastname','last_name','lname','surname','lastName'];
             $firstname_cols = ['firstname','first_name','fname','firstName'];
-            $cy_cols = ['c&y','course_year','c_y','courseyear','cy'];
+            $cy_cols = ['candy','course_year','c_y','courseyear','cy'];
             $school_cols = ['school','school_name'];
             $contact_cols = ['contact','contact_no','phone','contact_number'];
             $email_cols = ['email','email_address'];
@@ -88,7 +88,7 @@ if (isset($_POST['confirmed']) && $_POST['confirmed'] === 'true') {
                 if ($ln) { $cols[] = "`$ln`"; $place[] = '?'; $params[] = ($row['lastname'] ?? $row['lastName'] ?? ''); $types .= 's'; }
                 if ($fn) { $cols[] = "`$fn`"; $place[] = '?'; $params[] = ($row['firstname'] ?? $row['firstName'] ?? ''); $types .= 's'; }
             }
-            if ($cy) { $cols[] = "`$cy`"; $place[] = '?'; $params[] = ($row['c&y'] ?? $row['course_year'] ?? $row['c_y'] ?? ''); $types .= 's'; }
+            if ($cy) { $cols[] = "`$cy`"; $place[] = '?'; $params[] = ($row['candy'] ?? $row['course_year'] ?? $row['c_y'] ?? ''); $types .= 's'; }
             if ($sc) { $cols[] = "`$sc`"; $place[] = '?'; $params[] = ($row['school'] ?? ''); $types .= 's'; }
             if ($ct) { $cols[] = "`$ct`"; $place[] = '?'; $params[] = ($row['contact'] ?? ''); $types .= 's'; }
             if ($em) { $cols[] = "`$em`"; $place[] = '?'; $params[] = ($row['email'] ?? ''); $types .= 's'; }
